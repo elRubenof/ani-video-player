@@ -1,7 +1,5 @@
 library ani_video_player;
 
-import 'dart:io';
-
 import 'package:ani_video_player/desktop_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';

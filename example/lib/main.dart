@@ -2,7 +2,9 @@ import 'package:ani_video_player/ani_video_player.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  await AniVideo.ensureInitialized();
+
   runApp(const MyApp());
 }
 

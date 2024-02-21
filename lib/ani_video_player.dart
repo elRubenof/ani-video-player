@@ -3,6 +3,7 @@ library ani_video_player;
 import 'dart:io';
 
 import 'package:ani_video_player/desktop_video_player_controls.dart';
+import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,15 +21,17 @@ class AniVideo extends StatefulWidget {
     this.videoConfiguration,
   });
 
-  @override
-  State<AniVideo> createState() => _AniVideoState();
+  static Future<void> ensureInitialized() async {
+    MediaKit.ensureInitialized();
+    await Utility.checkTV();
+  }
 
   static Future<void> launchVideo(
     BuildContext context,
     String url, {
     VideoConfiguration? videoConfiguration,
   }) async {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Utility.isMobile()) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
@@ -46,11 +49,14 @@ class AniVideo extends StatefulWidget {
       ),
     );
 
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Utility.isMobile()) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     }
   }
+
+  @override
+  State<AniVideo> createState() => _AniVideoState();
 }
 
 class _AniVideoState extends State<AniVideo> {
@@ -61,9 +67,7 @@ class _AniVideoState extends State<AniVideo> {
   void initState() {
     super.initState();
 
-    MediaKit.ensureInitialized();
     player.open(Media(widget.url));
-
     videoConfig = widget.videoConfiguration ?? VideoConfiguration();
   }
 
@@ -92,14 +96,14 @@ class _AniVideoState extends State<AniVideo> {
   Widget getPlatformControls(VideoState state, VideoConfiguration videoConfig) {
     //TODO
     /*
-    if (isTv()) {
+    if (Utility.isTV()) {
       return TvVideoControls(state, videoConfig);
     }
     */
 
     //TODO
     /*
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Utility.isMobile()) {
       return MobileVideoControls(state, videoConfig);
     }
     */

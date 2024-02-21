@@ -5,6 +5,7 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 // ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 import 'dart:async';
+import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -24,15 +25,10 @@ import 'widgets/enhanced_mouse_region.dart';
 ///
 /// {@endtemplate}
 
-String title = "";
-Function()? hasNext;
-bool hasNextBool = false;
+VideoConfiguration _videoConfig = VideoConfiguration();
 
-Widget CustomVideoPlayerControls(VideoState state, String inputTitle,
-    Function()? inputHasNext, bool inputHasNextBool) {
-  title = inputTitle;
-  hasNext = inputHasNext;
-  hasNextBool = inputHasNextBool;
+Widget DesktopVideoControls(VideoState state, VideoConfiguration videoConfig) {
+  _videoConfig = videoConfig;
 
   return const VideoControlsThemeDataInjector(
     child: _CustomVideoPlayerControls(),
@@ -57,7 +53,7 @@ const kDefaultCustomVideoPlayerControlsThemeDataFullscreen =
 
 /// {@template material_desktop_video_controls_theme_data}
 ///
-/// Theming related data for [CustomVideoPlayerControls]. These values are used to theme the descendant [CustomVideoPlayerControls].
+/// Theming related data for [DesktopVideoControls]. These values are used to theme the descendant [DesktopVideoControls].
 ///
 /// {@endtemplate}
 class CustomVideoPlayerControlsThemeData {
@@ -203,7 +199,6 @@ class CustomVideoPlayerControlsThemeData {
     this.primaryButtonBar = const [],
     this.topButtonBar = const [
       ExitButton(),
-      SizedBox(width: 5),
       Title(),
     ],
     this.topButtonBarMargin = const EdgeInsets.symmetric(horizontal: 16.0),
@@ -337,8 +332,10 @@ class ExitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!_videoConfig.showBackButton) return Container();
+
     return Container(
-      margin: const EdgeInsets.only(left: 12),
+      margin: const EdgeInsets.only(left: 12, right: 6),
       child: IconButton(
         hoverColor: Colors.transparent,
         highlightColor: Colors.transparent,
@@ -360,8 +357,10 @@ class Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_videoConfig.title == null) return Container();
+
     return Text(
-      title,
+      _videoConfig.title!,
       style: const TextStyle(
         fontSize: 17,
         color: Colors.white,
@@ -583,7 +582,7 @@ class _CustomVideoPlayerControlsState
                 controller(context).player.playOrPause();
               },
               const SingleActivator(LogicalKeyboardKey.mediaTrackNext): () {
-                if (!hasNextBool) return;
+                if (!_videoConfig.showNextButton) return;
 
                 onHover();
                 controller(context).player.next();
@@ -1245,13 +1244,19 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!_videoConfig.showNextButton) return Container();
+
     return IconButton(
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      onPressed: hasNextBool ? () => hasNext!() : null,
+      onPressed: _videoConfig.onNextButtonPressed != null
+          ? () => _videoConfig.onNextButtonPressed!()
+          : () {},
       icon: const Icon(CupertinoIcons.forward_end),
       iconSize: iconSize ?? _theme(context).buttonBarButtonSize - 1,
-      color: iconColor ?? _theme(context).buttonBarButtonColor,
+      color: (iconColor ?? _theme(context).buttonBarButtonColor).withOpacity(
+        _videoConfig.onNextButtonPressed != null ? 1 : 0.3,
+      ),
     );
   }
 }
@@ -1395,7 +1400,7 @@ class MaterialDesktopVolumeButtonState
 
   @override
   void dispose() {
-    hasNext = null;
+    _videoConfig.onNextButtonPressed = null;
     subscription?.cancel();
     super.dispose();
   }

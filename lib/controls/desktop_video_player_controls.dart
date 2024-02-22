@@ -6,6 +6,7 @@
 // ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 import 'dart:async';
 import 'package:ani_video_player/video_configuration.dart';
+import 'package:ani_video_player/widgets/enhanced_mouse_region.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -16,8 +17,6 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_controls_theme_data_injector.dart';
-
-import 'widgets/enhanced_mouse_region.dart';
 
 /// {@template material_desktop_video_controls}
 ///
@@ -357,15 +356,7 @@ class Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (_videoConfig.title == null) return Container();
-
-    return Text(
-      _videoConfig.title!,
-      style: const TextStyle(
-        fontSize: 17,
-        color: Colors.white,
-      ),
-    );
+    return _videoConfig.titleWidget ?? Container();
   }
 }
 

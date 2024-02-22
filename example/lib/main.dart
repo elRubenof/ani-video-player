@@ -72,7 +72,22 @@ class _HomeState extends State<Home> {
                 child: const Text("Launch Video in new Screen"),
               ),
               onTap: () {
-                AniVideo.launchVideo(context, url);
+                AniVideo.launchVideo(
+                  context,
+                  url,
+                  videoConfiguration: VideoConfiguration(
+                    titleWidget: const Text(
+                      "Test Title",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                    showNextButton: true,
+                    onNextButtonPressed: () => print("Test"),
+                    showFullScreenButton: false,
+                  ),
+                );
               },
             ),
           ],

@@ -1,6 +1,7 @@
 library ani_video_player;
 
-import 'package:ani_video_player/desktop_video_player_controls.dart';
+import 'package:ani_video_player/controls/desktop_video_player_controls.dart';
+import 'package:ani_video_player/controls/mobile_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
@@ -99,12 +100,9 @@ class _AniVideoState extends State<AniVideo> {
     }
     */
 
-    //TODO
-    /*
     if (Utility.isMobile()) {
       return MobileVideoControls(state, videoConfig);
     }
-    */
 
     return DesktopVideoControls(state, videoConfig);
   }

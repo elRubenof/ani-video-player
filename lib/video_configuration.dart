@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VideoConfiguration {
-  String? title;
+  Widget? titleWidget;
   bool showNextButton;
   Function? onNextButtonPressed;
 
@@ -9,17 +9,29 @@ class VideoConfiguration {
   double? aspectRatio;
   bool wakelock;
 
+  bool showChromecastButton;
+
   bool showBackButton;
+  bool showFullScreenButton;
+  Widget? extra;
+
+  bool showFastPlaybackButtons;
 
   VideoConfiguration({
-    this.title,
+    this.titleWidget,
     this.showNextButton = false,
     this.onNextButtonPressed,
     //Video
     this.fit = BoxFit.contain,
     this.aspectRatio,
     this.wakelock = true,
-    //Desktop Controls
+    //Connectivity
+    this.showChromecastButton = true,
+    //Video Controls
     this.showBackButton = true,
+    this.showFullScreenButton = true,
+    this.extra,
+    //Mobile Video Controls
+    this.showFastPlaybackButtons = true,
   });
 }

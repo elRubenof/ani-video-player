@@ -1245,8 +1245,8 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
           : () {},
       icon: const Icon(CupertinoIcons.forward_end),
       iconSize: iconSize ?? _theme(context).buttonBarButtonSize - 1,
-      color: (iconColor ?? _theme(context).buttonBarButtonColor).withOpacity(
-        _videoConfig.onNextButtonPressed != null ? 1 : 0.3,
+      color: (iconColor ?? _theme(context).buttonBarButtonColor).withValues(
+        alpha: _videoConfig.onNextButtonPressed != null ? 1 : 0.3,
       ),
     );
   }

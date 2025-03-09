@@ -799,8 +799,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                               : () {},
                           child: Icon(
                             Icons.skip_next_rounded,
-                            color: Colors.white.withOpacity(
-                              _videoConfig.onNextButtonPressed != null
+                            color: Colors.white.withValues(
+                              alpha: _videoConfig.onNextButtonPressed != null
                                   ? 1
                                   : 0.3,
                             ),

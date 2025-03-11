@@ -112,7 +112,9 @@ class _MaterialVideoControls extends StatefulWidget {
 
 /// {@macro material_video_controls}
 class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
+  // Indicate if controls are been shown or not considering animation duration
   late bool mount = false;
+  // Indicate if controls should start to be visible or not
   late bool visible = false;
 
   Timer? _timer;
@@ -243,7 +245,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
               // Controls:
               AnimatedOpacity(
                 curve: Curves.easeInOut,
-                opacity: visible ? 1.0 : 0.0,
+                opacity: visible ? 1.0 : 1.0,
                 duration: _theme(context).controlsTransitionDuration,
                 onEnd: () {
                   setState(() {
@@ -256,112 +258,129 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
-                    Positioned.fill(
-                      left: 16.0,
-                      top: 16.0,
-                      right: 16.0,
-                      bottom: 16.0,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: onTap,
-                              onDoubleTap:
-                                  !mount ? onDoubleTapSeekBackward : () {},
-                              child: Container(
-                                color: const Color(0x00000000),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: onTap,
-                              onDoubleTap:
-                                  !mount ? onDoubleTapSeekForward : () {},
-                              child: Container(
-                                color: const Color(0x00000000),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (mount)
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (_videoConfig.showBackButton)
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: _theme(context).buttonBarHeight,
-                                  child: Transform.translate(
-                                    offset: const Offset(-20, 0),
-                                    child: const ExitButton(),
+                    _videoConfig.enableDoubleTapSeek
+                        ? Positioned.fill(
+                            left: 16.0,
+                            top: 16.0,
+                            right: 16.0,
+                            bottom: 16.0,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: onTap,
+                                    onDoubleTap: !mount
+                                        ? onDoubleTapSeekBackward
+                                        : () {},
+                                    child: Container(
+                                      color: const Color(0x00000000),
+                                    ),
                                   ),
                                 ),
-                              Row(
-                                children: [
-                                  if (_videoConfig.showChromecastButton)
-                                    //TODO
-                                    Container(),
-                                ],
-                              ),
-                            ],
-                          ),
-                          // Only display [primaryButtonBar] if [buffering] is false.
-                          Expanded(
-                            child: AnimatedOpacity(
-                              curve: Curves.easeInOut,
-                              opacity: buffering ? 0.0 : 1.0,
-                              duration:
-                                  _theme(context).controlsTransitionDuration,
-                              child: const Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ReplayButton(),
-                                    MaterialPlayOrPauseButton(),
-                                    ForwardButton(),
-                                  ],
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: onTap,
+                                    onDoubleTap:
+                                        !mount ? onDoubleTapSeekForward : () {},
+                                    child: Container(
+                                      color: const Color(0x00000000),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
+                          )
+                        : GestureDetector(
+                            onTap: onTap,
                           ),
-                          Column(
+                    if (mount)
+                      Container(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        child: SafeArea(
+                          bottom: false,
+                          top: false,
+                          child: Stack(
                             children: [
-                              const Row(
-                                mainAxisSize: MainAxisSize.max,
+                              Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Title(),
-                                  DurationIndicator(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      if (_videoConfig.showBackButton)
+                                        Container(
+                                          alignment: Alignment.centerLeft,
+                                          height:
+                                              _theme(context).buttonBarHeight,
+                                          child: Transform.translate(
+                                            offset: const Offset(-20, 0),
+                                            child: const ExitButton(),
+                                          ),
+                                        ),
+                                      Row(
+                                        children: [
+                                          if (_videoConfig.enableCast)
+                                            //TODO
+                                            Container(),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      const Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Title(),
+                                          DurationIndicator(),
+                                        ],
+                                      ),
+                                      MaterialSeekBar(
+                                        onSeekStart: () {
+                                          _timer?.cancel();
+                                        },
+                                        onSeekEnd: () {
+                                          _timer = Timer(
+                                            _theme(context)
+                                                .controlsHoverDuration,
+                                            () {
+                                              if (mounted) {
+                                                setState(() => visible = false);
+                                              }
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                              MaterialSeekBar(
-                                onSeekStart: () {
-                                  _timer?.cancel();
-                                },
-                                onSeekEnd: () {
-                                  _timer = Timer(
-                                    _theme(context).controlsHoverDuration,
-                                    () {
-                                      if (mounted) {
-                                        setState(() => visible = false);
-                                      }
-                                    },
-                                  );
-                                },
+                              // Only display [primaryButtonBar] if [buffering] is false.
+                              AnimatedOpacity(
+                                curve: Curves.easeInOut,
+                                opacity: buffering ? 0.0 : 1.0,
+                                duration:
+                                    _theme(context).controlsTransitionDuration,
+                                child: const Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      BackwardButton(),
+                                      MaterialPlayOrPauseButton(),
+                                      ForwardButton(),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                   ],
                 ),
@@ -369,22 +388,26 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
               // Double-Tap Seek Seek-Bar:
               if (!mount)
                 if (_mountSeekBackwardButton || _mountSeekForwardButton)
-                  Column(
-                    children: [
-                      const Spacer(),
-                      Stack(
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          MaterialSeekBar(
-                            delta: _seekBarDeltaValueNotifier,
-                          ),
-                          Container(
-                            height: _theme(context).buttonBarHeight,
-                            margin: _theme(context).bottomButtonBarMargin,
-                          ),
-                        ],
-                      ),
-                    ],
+                  SafeArea(
+                    bottom: false,
+                    top: false,
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            MaterialSeekBar(
+                              delta: _seekBarDeltaValueNotifier,
+                            ),
+                            Container(
+                              height: _theme(context).buttonBarHeight,
+                              margin: _theme(context).bottomButtonBarMargin,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
               // Buffering Indicator.
               IgnorePointer(
@@ -394,43 +417,28 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                       isFullscreen(context)
                           ? MediaQuery.of(context).padding
                           : EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      Container(
-                        height: _theme(context).buttonBarHeight,
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: 0.0,
+                        end: buffering ? 1.0 : 0.0,
                       ),
-                      Expanded(
-                        child: Center(
-                          child: TweenAnimationBuilder<double>(
-                            tween: Tween<double>(
-                              begin: 0.0,
-                              end: buffering ? 1.0 : 0.0,
-                            ),
-                            duration:
-                                _theme(context).controlsTransitionDuration,
-                            builder: (context, value, child) {
-                              // Only mount the buffering indicator if the opacity is greater than 0.0.
-                              // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
-                              if (value > 0.0) {
-                                return Opacity(
-                                  opacity: value,
-                                  child: child!,
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                            child: const CircularProgressIndicator(
-                              color: Color(0xFFFFFFFF),
-                            ),
-                          ),
-                        ),
+                      duration: _theme(context).controlsTransitionDuration,
+                      builder: (context, value, child) {
+                        // Only mount the buffering indicator if the opacity is greater than 0.0.
+                        // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
+                        if (value > 0.0) {
+                          return Opacity(
+                            opacity: value,
+                            child: child!,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                      child: const CircularProgressIndicator(
+                        color: Colors.white,
                       ),
-                      Container(
-                        height: _theme(context).buttonBarHeight,
-                        margin: _theme(context).bottomButtonBarMargin,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -713,6 +721,13 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
+    double trackHeight = height * 0.005;
+    if (trackHeight > 3) {
+      trackHeight = 3;
+    }
+
     return Container(
       clipBehavior: Clip.none,
       child: LayoutBuilder(
@@ -738,7 +753,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                       children: [
                         Container(
                           width: constraints.maxWidth,
-                          height: 2.4,
+                          height: trackHeight,
                           alignment: Alignment.bottomLeft,
                           color: const Color(0x3DFFFFFF),
                           child: Stack(
@@ -749,13 +764,20 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                                 width: constraints.maxWidth * bufferPercent,
                                 color: const Color(0x3DFFFFFF),
                               ),
-                              Container(
-                                width: tapped
-                                    ? constraints.maxWidth * slider
-                                    : constraints.maxWidth * positionPercent,
-                                color: Colors.white,
-                              ),
                             ],
+                          ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          child: Container(
+                            height: trackHeight * 2,
+                            width: tapped
+                                ? constraints.maxWidth * slider
+                                : constraints.maxWidth * positionPercent,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                         Positioned(
@@ -765,7 +787,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                                   positionPercent,
                           bottom: -1.0 * 12.8 / 2 + 2.4 / 2,
                           child: Container(
-                            width: 12.8 / 3,
+                            width: 12.8 / 5,
                             height: 12.8,
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -897,8 +919,8 @@ class ForwardButton extends StatelessWidget {
 // BUTTON: SKIP PREVIOUS
 
 /// Material design skip previous button.
-class ReplayButton extends StatelessWidget {
-  const ReplayButton({Key? key}) : super(key: key);
+class BackwardButton extends StatelessWidget {
+  const BackwardButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

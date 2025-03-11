@@ -4,18 +4,19 @@ class VideoConfiguration {
   Widget? titleWidget;
   bool showNextButton;
   Function? onNextButtonPressed;
-
+  //Video
   BoxFit fit;
   double? aspectRatio;
   bool wakelock;
-
-  bool showChromecastButton;
-
+  //Connectivity
+  bool enableCast;
+  //Video Controls
   bool showBackButton;
   bool showFullScreenButton;
   Widget? extra;
-
+  //Mobile Video Controls
   bool showFastPlaybackButtons;
+  bool enableDoubleTapSeek;
 
   VideoConfiguration({
     this.titleWidget,
@@ -26,12 +27,13 @@ class VideoConfiguration {
     this.aspectRatio,
     this.wakelock = true,
     //Connectivity
-    this.showChromecastButton = true,
+    this.enableCast = true,
     //Video Controls
     this.showBackButton = true,
     this.showFullScreenButton = true,
     this.extra,
     //Mobile Video Controls
     this.showFastPlaybackButtons = true,
+    this.enableDoubleTapSeek = true,
   });
 }

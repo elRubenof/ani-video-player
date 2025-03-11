@@ -1,4 +1,4 @@
-package com.example.example
+package com.bcr.plugins.anivideoplayerexample
 
 import io.flutter.embedding.android.FlutterActivity
 

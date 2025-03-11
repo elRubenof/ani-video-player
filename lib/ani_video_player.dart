@@ -25,7 +25,7 @@ class AniVideo extends StatefulWidget {
     await Utility.checkTV();
   }
 
-  static Future<void> launchVideo(
+  static Future<void> launchVideoPage(
     BuildContext context,
     String url, {
     VideoConfiguration? videoConfiguration,
@@ -77,17 +77,13 @@ class _AniVideoState extends State<AniVideo> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      top: false,
-      child: Center(
-        child: Video(
-          controller: VideoController(player),
-          controls: (state) => getPlatformControls(state, videoConfig),
-          fit: videoConfig.fit,
-          aspectRatio: videoConfig.aspectRatio,
-          wakelock: videoConfig.wakelock,
-        ),
+    return Center(
+      child: Video(
+        controller: VideoController(player),
+        controls: (state) => getPlatformControls(state, videoConfig),
+        fit: videoConfig.fit,
+        aspectRatio: videoConfig.aspectRatio,
+        wakelock: videoConfig.wakelock,
       ),
     );
   }

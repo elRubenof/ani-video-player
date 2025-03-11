@@ -5,7 +5,7 @@ homepage: https://github.com/elRubenof/ani-video-player
 version: 0.0.1
 
 environment:
-  sdk: '>=3.1.5 <4.0.0'
+  sdk: ">=3.5.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
@@ -17,7 +17,7 @@ dependencies:
   media_kit: ^1.1.10+1
   media_kit_libs_video: ^1.0.4
   media_kit_video: ^1.2.4
-  win32: ^5.1.1
+  win32: ^5.2.0
 
 dev_dependencies:
   flutter_test:

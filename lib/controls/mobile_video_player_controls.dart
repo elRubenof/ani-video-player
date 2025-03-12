@@ -778,6 +778,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                       clipBehavior: Clip.none,
                       alignment: Alignment.bottomCenter,
                       children: [
+                        // Full bar
                         Container(
                           width: constraints.maxWidth,
                           height: trackHeight,
@@ -794,8 +795,10 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                             ],
                           ),
                         ),
+                        // Progress bar
                         Positioned(
                           left: 0,
+                          bottom: -trackHeight * 0.5,
                           child: Container(
                             height: trackHeight * 2,
                             width: constraints.maxWidth * positionPercent,
@@ -807,12 +810,13 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                             ),
                           ),
                         ),
+                        // Position mark
                         Positioned(
                           left: constraints.maxWidth * positionPercent,
-                          bottom: -1.0 * 12.8 / 2 + 2.4 / 2,
+                          bottom: -trackHeight * 3.75 / 2,
                           child: Container(
-                            width: 12.8 / 5,
-                            height: 12.8,
+                            width: 2.3,
+                            height: trackHeight * 4.75,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(

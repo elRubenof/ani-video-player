@@ -211,6 +211,22 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
     }
   }
 
+  void show() {
+    setState(() {
+      mount = true;
+      visible = true;
+    });
+
+    _timer?.cancel();
+    _timer = Timer(_theme(context).controlsHoverDuration, () {
+      if (mounted) {
+        setState(() {
+          visible = false;
+        });
+      }
+    });
+  }
+
   void onDoubleTapSeekBackward() {
     setState(() {
       _mountSeekBackwardButton = true;
@@ -368,21 +384,21 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                                   ],
                                 ),
                                 // Only display [primaryButtonBar] if [buffering] is false.
-                                AnimatedOpacity(
-                                  curve: Curves.easeInOut,
-                                  opacity: buffering ? 0.0 : 1.0,
-                                  duration: _theme(context)
-                                      .controlsTransitionDuration,
-                                  child: const Center(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        BackwardButton(),
-                                        MaterialPlayOrPauseButton(),
-                                        ForwardButton(),
-                                      ],
-                                    ),
+                                Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      BackwardButton(onPressed: show),
+                                      AnimatedOpacity(
+                                        curve: Curves.easeInOut,
+                                        opacity: buffering ? 0.0 : 1.0,
+                                        duration: _theme(context)
+                                            .controlsTransitionDuration,
+                                        child:
+                                            const MaterialPlayOrPauseButton(),
+                                      ),
+                                      ForwardButton(onPressed: show),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -944,7 +960,9 @@ class MaterialPlayOrPauseButtonState extends State<MaterialPlayOrPauseButton>
 
 /// Material design skip next button.
 class ForwardButton extends StatelessWidget {
-  const ForwardButton({Key? key}) : super(key: key);
+  final Function? onPressed;
+
+  const ForwardButton({Key? key, this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -953,7 +971,12 @@ class ForwardButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(left: 30),
       child: CupertinoButton(
-        onPressed: controller(context).player.next,
+        onPressed: () {
+          final player = controller(context).player;
+          player.seek(player.state.position + const Duration(seconds: 10));
+
+          if (onPressed != null) onPressed!();
+        },
         child: Icon(
           Icons.forward_10_rounded,
           color: Colors.white,
@@ -968,7 +991,9 @@ class ForwardButton extends StatelessWidget {
 
 /// Material design skip previous button.
 class BackwardButton extends StatelessWidget {
-  const BackwardButton({Key? key}) : super(key: key);
+  final Function? onPressed;
+
+  const BackwardButton({Key? key, this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -977,7 +1002,12 @@ class BackwardButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(right: 30),
       child: CupertinoButton(
-        onPressed: controller(context).player.previous,
+        onPressed: () {
+          final player = controller(context).player;
+          player.seek(player.state.position - const Duration(seconds: 10));
+
+          if (onPressed != null) onPressed!();
+        },
         child: Icon(
           Icons.replay_10_rounded,
           color: Colors.white,

@@ -186,7 +186,9 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
   }
 
   void onTap() {
-    if (!visible) {
+    if (buffering) return;
+
+    if (!visible && !mount) {
       setState(() {
         mount = true;
         visible = true;
@@ -295,91 +297,96 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                             onTap: onTap,
                           ),
                     if (mount)
-                      Container(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        child: SafeArea(
-                          bottom: false,
-                          top: false,
-                          child: Stack(
-                            children: [
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      if (_videoConfig.showBackButton)
-                                        Container(
-                                          alignment: Alignment.centerLeft,
-                                          height:
-                                              _theme(context).buttonBarHeight,
-                                          child: Transform.translate(
-                                            offset: const Offset(-20, 0),
-                                            child: const ExitButton(),
+                      GestureDetector(
+                        onTap: onTap,
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          child: SafeArea(
+                            bottom: false,
+                            top: false,
+                            child: Stack(
+                              children: [
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (_videoConfig.showBackButton)
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            height:
+                                                _theme(context).buttonBarHeight,
+                                            child: Transform.translate(
+                                              offset: const Offset(-20, 0),
+                                              child: const ExitButton(),
+                                            ),
                                           ),
+                                        Row(
+                                          children: [
+                                            if (_videoConfig.enableCast)
+                                              //TODO
+                                              Container(),
+                                          ],
                                         ),
-                                      Row(
-                                        children: [
-                                          if (_videoConfig.enableCast)
-                                            //TODO
-                                            Container(),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      const Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Title(),
-                                          DurationIndicator(),
-                                        ],
-                                      ),
-                                      MaterialSeekBar(
-                                        onSeekStart: () {
-                                          _timer?.cancel();
-                                        },
-                                        onSeekEnd: () {
-                                          _timer = Timer(
-                                            _theme(context)
-                                                .controlsHoverDuration,
-                                            () {
-                                              if (mounted) {
-                                                setState(() => visible = false);
-                                              }
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              // Only display [primaryButtonBar] if [buffering] is false.
-                              AnimatedOpacity(
-                                curve: Curves.easeInOut,
-                                opacity: buffering ? 0.0 : 1.0,
-                                duration:
-                                    _theme(context).controlsTransitionDuration,
-                                child: const Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      BackwardButton(),
-                                      MaterialPlayOrPauseButton(),
-                                      ForwardButton(),
-                                    ],
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        const Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Title(),
+                                            DurationIndicator(),
+                                          ],
+                                        ),
+                                        MaterialSeekBar(
+                                          onSeekStart: () {
+                                            _timer?.cancel();
+                                          },
+                                          onSeekEnd: () {
+                                            _timer = Timer(
+                                              _theme(context)
+                                                  .controlsHoverDuration,
+                                              () {
+                                                if (mounted) {
+                                                  setState(
+                                                      () => visible = false);
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                // Only display [primaryButtonBar] if [buffering] is false.
+                                AnimatedOpacity(
+                                  curve: Curves.easeInOut,
+                                  opacity: buffering ? 0.0 : 1.0,
+                                  duration: _theme(context)
+                                      .controlsTransitionDuration,
+                                  child: const Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        BackwardButton(),
+                                        MaterialPlayOrPauseButton(),
+                                        ForwardButton(),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -1148,9 +1155,13 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
   }
 
   void increment() {
+    if (timer != null && !timer!.isActive) return;
+    controller(context).player.pause();
+
     timer?.cancel();
     timer = Timer(const Duration(milliseconds: 400), () {
       widget.onSubmitted.call(value);
+      controller(context).player.play();
     });
     widget.onChanged.call(value);
     setState(() {
@@ -1234,9 +1245,13 @@ class _ForwardSeekIndicatorState extends State<_ForwardSeekIndicator> {
   }
 
   void increment() {
+    if (timer != null && !timer!.isActive) return;
+    controller(context).player.pause();
+
     timer?.cancel();
     timer = Timer(const Duration(milliseconds: 400), () {
       widget.onSubmitted.call(value);
+      controller(context).player.play();
     });
     widget.onChanged.call(value);
     setState(() {

@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:async';
+import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -245,7 +246,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
               // Controls:
               AnimatedOpacity(
                 curve: Curves.easeInOut,
-                opacity: visible ? 1.0 : 1.0,
+                opacity: visible ? 1.0 : 0.0,
                 duration: _theme(context).controlsTransitionDuration,
                 onEnd: () {
                   setState(() {
@@ -388,25 +389,42 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
               // Double-Tap Seek Seek-Bar:
               if (!mount)
                 if (_mountSeekBackwardButton || _mountSeekForwardButton)
-                  SafeArea(
-                    bottom: false,
-                    top: false,
-                    child: Column(
-                      children: [
-                        const Spacer(),
-                        Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            MaterialSeekBar(
-                              delta: _seekBarDeltaValueNotifier,
-                            ),
-                            Container(
-                              height: _theme(context).buttonBarHeight,
-                              margin: _theme(context).bottomButtonBarMargin,
-                            ),
-                          ],
-                        ),
-                      ],
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: SafeArea(
+                      bottom: false,
+                      top: false,
+                      child: Column(
+                        children: [
+                          const Spacer(),
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Column(
+                                children: [
+                                  const Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Title(),
+                                      DurationIndicator(),
+                                    ],
+                                  ),
+                                  MaterialSeekBar(
+                                    delta: _seekBarDeltaValueNotifier,
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: _theme(context).buttonBarHeight,
+                                margin: _theme(context).bottomButtonBarMargin,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
               // Buffering Indicator.
@@ -653,6 +671,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
+      setState(() => position = duration * slider);
     });
   }
 
@@ -696,6 +715,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
+      setState(() => position = duration * slider);
     });
   }
 
@@ -771,20 +791,17 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                           left: 0,
                           child: Container(
                             height: trackHeight * 2,
-                            width: tapped
-                                ? constraints.maxWidth * slider
-                                : constraints.maxWidth * positionPercent,
-                            decoration: BoxDecoration(
+                            width: constraints.maxWidth * positionPercent,
+                            decoration: const BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(12),
+                              ),
                             ),
                           ),
                         ),
                         Positioned(
-                          left: tapped
-                              ? (constraints.maxWidth - 12.8 / 2) * slider
-                              : (constraints.maxWidth - 12.8 / 2) *
-                                  positionPercent,
+                          left: constraints.maxWidth * positionPercent,
                           bottom: -1.0 * 12.8 / 2 + 2.4 / 2,
                           child: Container(
                             width: 12.8 / 5,
@@ -797,42 +814,62 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                             ),
                           ),
                         ),
+                        Positioned(
+                          left: constraints.maxWidth * positionPercent - 48,
+                          bottom: -1.0 * 12.8 / 2 + 2.4 / 2 - 20,
+                          child: Container(
+                            width: 100,
+                            alignment: Alignment.center,
+                            child: Text(
+                              position.label(reference: position),
+                              style: TextStyle(
+                                color: Colors.white,
+                                height: 1.3,
+                                fontSize:
+                                    height * (Utility.isMobile() ? 0.03 : 0.02),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _videoConfig.extra ?? Container(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (_videoConfig.showNextButton)
-                      Container(
-                        height: 24,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: _videoConfig.onNextButtonPressed != null
-                              ? () => _videoConfig.onNextButtonPressed!()
-                              : () {},
-                          child: Icon(
-                            Icons.skip_next_rounded,
-                            color: Colors.white.withValues(
-                              alpha: _videoConfig.onNextButtonPressed != null
-                                  ? 1
-                                  : 0.3,
+            Container(
+              margin: const EdgeInsets.only(top: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _videoConfig.extra ?? Container(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (_videoConfig.showNextButton)
+                        Container(
+                          height: 24,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: _videoConfig.onNextButtonPressed != null
+                                ? () => _videoConfig.onNextButtonPressed!()
+                                : () {},
+                            child: Icon(
+                              Icons.skip_next_rounded,
+                              color: Colors.white.withValues(
+                                alpha: _videoConfig.onNextButtonPressed != null
+                                    ? 1
+                                    : 0.3,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    const MaterialFullscreenButton(),
-                  ],
-                )
-              ],
+                      const MaterialFullscreenButton(),
+                    ],
+                  )
+                ],
+              ),
             ),
           ],
         ),
@@ -1135,7 +1172,6 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
         ),
       ),
       child: InkWell(
-        splashColor: const Color(0x44767676),
         onTap: increment,
         child: Center(
           child: Column(
@@ -1150,7 +1186,7 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                '${value.inSeconds} segundos',
+                '${value.inSeconds} ${_videoConfig.secondsText}',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Color(0xFFFFFFFF),
@@ -1222,7 +1258,6 @@ class _ForwardSeekIndicatorState extends State<_ForwardSeekIndicator> {
         ),
       ),
       child: InkWell(
-        splashColor: const Color(0x44767676),
         onTap: increment,
         child: Center(
           child: Column(

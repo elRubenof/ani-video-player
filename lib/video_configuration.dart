@@ -17,6 +17,7 @@ class VideoConfiguration {
   //Mobile Video Controls
   bool showFastPlaybackButtons;
   bool enableDoubleTapSeek;
+  String secondsText;
 
   VideoConfiguration({
     this.titleWidget,
@@ -35,5 +36,6 @@ class VideoConfiguration {
     //Mobile Video Controls
     this.showFastPlaybackButtons = true,
     this.enableDoubleTapSeek = true,
+    this.secondsText = "seconds",
   });
 }

@@ -25,7 +25,7 @@ class AniVideo extends StatefulWidget {
     await Utility.checkTV();
   }
 
-  static Future<void> launchVideoPage(
+  static Future<void> launchVideoFullScreen(
     BuildContext context,
     String url, {
     VideoConfiguration? videoConfiguration,
@@ -77,6 +77,7 @@ class _AniVideoState extends State<AniVideo> {
 
   @override
   void dispose() {
+    player.dispose();
     super.dispose();
   }
 

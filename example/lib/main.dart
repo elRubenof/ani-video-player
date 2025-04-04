@@ -71,7 +71,7 @@ class _HomeState extends State<Home> {
                 child: const Text("Launch Video in new Screen"),
               ),
               onTap: () {
-                AniVideo.launchVideoPage(
+                AniVideo.launchVideoFullScreen(
                   context,
                   url,
                   videoConfiguration: const VideoConfiguration(

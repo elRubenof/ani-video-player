@@ -913,34 +913,11 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _videoConfig.controls.extra ?? Container(),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (_videoConfig.controls.showNextButton)
-                        Container(
-                          height: 24,
-                          margin: const EdgeInsets.only(bottom: 10),
-                          child: CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: _videoConfig
-                                        .controls.onNextButtonPressed !=
-                                    null
-                                ? () =>
-                                    _videoConfig.controls.onNextButtonPressed!()
-                                : () {},
-                            child: Icon(
-                              Icons.skip_next_rounded,
-                              color: Colors.white.withValues(
-                                alpha:
-                                    _videoConfig.controls.onNextButtonPressed !=
-                                            null
-                                        ? 1
-                                        : 0.3,
-                              ),
-                            ),
-                          ),
-                        ),
-                      const MaterialFullscreenButton(),
+                      SkipNextButton(),
+                      MaterialFullscreenButton(),
                     ],
                   )
                 ],
@@ -1056,6 +1033,52 @@ class BackwardButton extends StatelessWidget {
           Icons.replay_10_rounded,
           color: Colors.white,
           size: MediaQuery.of(context).size.width * 0.05,
+        ),
+      ),
+    );
+  }
+}
+
+// BUTTON: SKIP NEXT
+
+/// MaterialDesktop design skip next button.
+class SkipNextButton extends StatelessWidget {
+  /// Icon for [MaterialDesktopSkipNextButton].
+  final Widget? icon;
+
+  /// Overriden icon size for [MaterialDesktopSkipNextButton].
+  final double? iconSize;
+
+  /// Overriden icon color for [MaterialDesktopSkipNextButton].
+  final Color? iconColor;
+
+  const SkipNextButton({
+    Key? key,
+    this.icon,
+    this.iconSize,
+    this.iconColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final controls = _videoConfig.controls;
+    if (!controls.showNextButton) return Container();
+
+    return Container(
+      height: 24,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: controls.onNextButtonPressed == null
+            ? null
+            : () {
+                controls.onNextButtonPressed!(controller(context).player);
+              },
+        child: Icon(
+          Icons.skip_next_rounded,
+          color: Colors.white.withValues(
+            alpha: controls.onNextButtonPressed == null ? 0.3 : 1,
+          ),
         ),
       ),
     );

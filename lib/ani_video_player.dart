@@ -73,6 +73,12 @@ class _AniVideoState extends State<AniVideo> {
         httpHeaders: videoConfig.httpHeaders,
       ),
     );
+
+    if (videoConfig.onBuffering != null) {
+      player.stream.buffering.listen(
+        (value) => videoConfig.onBuffering!(value, player),
+      );
+    }
   }
 
   @override

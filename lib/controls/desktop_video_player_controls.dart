@@ -1261,7 +1261,7 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onPressed: controls.onNextButtonPressed != null
-          ? () => controls.onNextButtonPressed!()
+          ? () => controls.onNextButtonPressed!(controller(context).player)
           : () {},
       icon: const Icon(CupertinoIcons.forward_end),
       iconSize: iconSize ?? _theme(context).buttonBarButtonSize - 1,

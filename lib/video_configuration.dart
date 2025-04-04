@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
 
 class VideoConfiguration {
   final VideoDetails details;
   final VideoControls controls;
   final Map<String, String>? httpHeaders;
+  final Function(bool value, Player player)? onBuffering;
 
   const VideoConfiguration({
     //Mobile Video Controls
     this.details = const VideoDetails(),
     this.controls = const VideoControls(),
     this.httpHeaders,
+    this.onBuffering,
   });
 }
 
@@ -39,7 +42,7 @@ class VideoControls {
   /// Show an icon button on the bottom right corner to enable/disable fullscreen
   final bool showFullScreenButton;
   final bool showNextButton;
-  final Function? onNextButtonPressed;
+  final Function(Player player)? onNextButtonPressed;
 
   /// Aditional widget on the bottom right corner
   final Widget? extra;

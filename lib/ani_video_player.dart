@@ -66,8 +66,13 @@ class _AniVideoState extends State<AniVideo> {
   void initState() {
     super.initState();
 
-    player.open(Media(widget.url));
-    videoConfig = widget.videoConfiguration ?? VideoConfiguration();
+    videoConfig = widget.videoConfiguration ?? const VideoConfiguration();
+    player.open(
+      Media(
+        widget.url,
+        httpHeaders: videoConfig.httpHeaders,
+      ),
+    );
   }
 
   @override
@@ -80,26 +85,35 @@ class _AniVideoState extends State<AniVideo> {
     return Center(
       child: Video(
         controller: VideoController(player),
-        controls: (state) => getPlatformControls(state, videoConfig),
-        fit: videoConfig.fit,
-        aspectRatio: videoConfig.aspectRatio,
-        wakelock: videoConfig.wakelock,
+        controls: (state) => getControls(state, videoConfig),
+        fit: videoConfig.details.fit,
+        aspectRatio: videoConfig.details.aspectRatio,
+        wakelock: videoConfig.details.wakelock,
       ),
     );
   }
 
-  Widget getPlatformControls(VideoState state, VideoConfiguration videoConfig) {
-    //TODO
-    /*
-    if (Utility.isTV()) {
-      return TvVideoControls(state, videoConfig);
-    }
-    */
+  Widget getControls(VideoState state, VideoConfiguration videoConfig) {
+    switch (videoConfig.controls.platform) {
+      case Platform.auto:
+        if (Utility.isDesktop()) {
+          return DesktopVideoControls(state, videoConfig);
+        }
 
-    if (Utility.isMobile()) {
-      return MobileVideoControls(state, videoConfig);
-    }
+        if (Utility.isTV()) {
+          //return TVVideoControls(state, videoConfig);
+        }
 
-    return DesktopVideoControls(state, videoConfig);
+        return MobileVideoControls(videoConfig: videoConfig);
+
+      case Platform.desktop:
+        return DesktopVideoControls(state, videoConfig);
+
+      case Platform.tv:
+      //return TVVideoControls(state, videoConfig);
+
+      default:
+        return MobileVideoControls(videoConfig: videoConfig);
+    }
   }
 }

@@ -11,15 +11,8 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/vi
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_controls_theme_data_injector.dart';
 
-VideoConfiguration _videoConfig = VideoConfiguration();
-
-Widget MobileVideoControls(VideoState state, VideoConfiguration videoConfig) {
-  _videoConfig = videoConfig;
-
-  return const VideoControlsThemeDataInjector(
-    child: _MaterialVideoControls(),
-  );
-}
+VideoConfiguration _videoConfig = const VideoConfiguration();
+String _secondsText = "";
 
 MaterialVideoControlsThemeData _theme(BuildContext context) =>
     FullscreenInheritedWidget.maybeOf(context) == null
@@ -52,7 +45,7 @@ class ExitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showBackButton) return Container();
+    if (!_videoConfig.controls.showBackButton) return Container();
 
     return CupertinoButton(
       onPressed: () => Navigator.pop(context),
@@ -69,7 +62,26 @@ class Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _videoConfig.titleWidget ?? Container();
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    double titleSize = height * 0.05;
+    if (titleSize > 30) {
+      titleSize = 30;
+    }
+
+    return Container(
+      constraints: BoxConstraints(maxWidth: width * 0.5),
+      child: Text(
+        _videoConfig.details.title ?? "",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: titleSize,
+          fontWeight: FontWeight.bold,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
   }
 }
 
@@ -104,15 +116,28 @@ class MaterialVideoControlsTheme extends InheritedWidget {
 }
 
 /// {@macro material_video_controls}
-class _MaterialVideoControls extends StatefulWidget {
-  const _MaterialVideoControls();
+class MobileVideoControls extends StatefulWidget {
+  final VideoConfiguration videoConfig;
+  final bool showFastPlaybackButtons;
+  final bool enableDoubleTapSeek;
+  final bool showCastButton;
+  final String secondsText;
+
+  const MobileVideoControls({
+    super.key,
+    required this.videoConfig,
+    this.showFastPlaybackButtons = true,
+    this.enableDoubleTapSeek = true,
+    this.showCastButton = true,
+    this.secondsText = "seconds",
+  });
 
   @override
-  State<_MaterialVideoControls> createState() => _MaterialVideoControlsState();
+  State<MobileVideoControls> createState() => _MobileVideoControlsState();
 }
 
 /// {@macro material_video_controls}
-class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
+class _MobileVideoControlsState extends State<MobileVideoControls> {
   // Indicate if controls are been shown or not considering animation duration
   late bool mount = false;
   // Indicate if controls should start to be visible or not
@@ -132,6 +157,14 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
       ValueNotifier<Duration>(Duration.zero);
 
   final List<StreamSubscription> subscriptions = [];
+
+  @override
+  void initState() {
+    _videoConfig = widget.videoConfig;
+    _secondsText = widget.secondsText;
+
+    super.initState();
+  }
 
   @override
   void setState(VoidCallback fn) {
@@ -241,350 +274,360 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        focusColor: const Color(0x00000000),
-        hoverColor: const Color(0x00000000),
-        splashColor: const Color(0x00000000),
-        highlightColor: const Color(0x00000000),
-      ),
-      child: Focus(
-        autofocus: true,
-        child: Material(
-          elevation: 0.0,
-          borderOnForeground: false,
-          animationDuration: Duration.zero,
-          color: const Color(0x00000000),
-          shadowColor: const Color(0x00000000),
-          surfaceTintColor: const Color(0x00000000),
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // Controls:
-              AnimatedOpacity(
-                curve: Curves.easeInOut,
-                opacity: visible ? 1.0 : 0.0,
-                duration: _theme(context).controlsTransitionDuration,
-                onEnd: () {
-                  setState(() {
-                    if (!visible) {
-                      mount = false;
-                    }
-                  });
-                },
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    _videoConfig.enableDoubleTapSeek
-                        ? Positioned.fill(
-                            left: 16.0,
-                            top: 16.0,
-                            right: 16.0,
-                            bottom: 16.0,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: onTap,
-                                    onDoubleTap: !mount
-                                        ? onDoubleTapSeekBackward
-                                        : () {},
-                                    child: Container(
-                                      color: const Color(0x00000000),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: onTap,
-                                    onDoubleTap:
-                                        !mount ? onDoubleTapSeekForward : () {},
-                                    child: Container(
-                                      color: const Color(0x00000000),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : GestureDetector(
-                            onTap: onTap,
-                          ),
-                    if (mount)
-                      GestureDetector(
-                        onTap: onTap,
-                        child: Container(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          child: SafeArea(
-                            bottom: false,
-                            top: false,
-                            child: Stack(
-                              children: [
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        if (_videoConfig.showBackButton)
-                                          Container(
-                                            alignment: Alignment.centerLeft,
-                                            height:
-                                                _theme(context).buttonBarHeight,
-                                            child: Transform.translate(
-                                              offset: const Offset(-20, 0),
-                                              child: const ExitButton(),
-                                            ),
-                                          ),
-                                        Row(
-                                          children: [
-                                            if (_videoConfig.enableCast)
-                                              //TODO
-                                              Container(),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        const Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Title(),
-                                            DurationIndicator(),
-                                          ],
-                                        ),
-                                        MaterialSeekBar(
-                                          onSeekStart: () {
-                                            _timer?.cancel();
-                                          },
-                                          onSeekEnd: () {
-                                            _timer = Timer(
-                                              _theme(context)
-                                                  .controlsHoverDuration,
-                                              () {
-                                                if (mounted) {
-                                                  setState(
-                                                      () => visible = false);
-                                                }
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                // Only display [primaryButtonBar] if [buffering] is false.
-                                Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      BackwardButton(onPressed: show),
-                                      AnimatedOpacity(
-                                        curve: Curves.easeInOut,
-                                        opacity: buffering ? 0.0 : 1.0,
-                                        duration: _theme(context)
-                                            .controlsTransitionDuration,
-                                        child:
-                                            const MaterialPlayOrPauseButton(),
-                                      ),
-                                      ForwardButton(onPressed: show),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              // Double-Tap Seek Seek-Bar:
-              if (!mount)
-                if (_mountSeekBackwardButton || _mountSeekForwardButton)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    child: SafeArea(
-                      bottom: false,
-                      top: false,
-                      child: Column(
-                        children: [
-                          const Spacer(),
-                          Stack(
-                            alignment: Alignment.bottomCenter,
-                            children: [
-                              Column(
+    return VideoControlsThemeDataInjector(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          focusColor: const Color(0x00000000),
+          hoverColor: const Color(0x00000000),
+          splashColor: const Color(0x00000000),
+          highlightColor: const Color(0x00000000),
+        ),
+        child: Focus(
+          autofocus: true,
+          child: Material(
+            elevation: 0.0,
+            borderOnForeground: false,
+            animationDuration: Duration.zero,
+            color: const Color(0x00000000),
+            shadowColor: const Color(0x00000000),
+            surfaceTintColor: const Color(0x00000000),
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                // Controls:
+                AnimatedOpacity(
+                  curve: Curves.easeInOut,
+                  opacity: visible ? 1.0 : 0.0,
+                  duration: _theme(context).controlsTransitionDuration,
+                  onEnd: () {
+                    setState(() {
+                      if (!visible) {
+                        mount = false;
+                      }
+                    });
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      widget.enableDoubleTapSeek
+                          ? Positioned.fill(
+                              left: 16.0,
+                              top: 16.0,
+                              right: 16.0,
+                              bottom: 16.0,
+                              child: Row(
                                 children: [
-                                  const Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Title(),
-                                      DurationIndicator(),
-                                    ],
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: onTap,
+                                      onDoubleTap: !mount
+                                          ? onDoubleTapSeekBackward
+                                          : () {},
+                                      child: Container(
+                                        color: const Color(0x00000000),
+                                      ),
+                                    ),
                                   ),
-                                  MaterialSeekBar(
-                                    delta: _seekBarDeltaValueNotifier,
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: onTap,
+                                      onDoubleTap: !mount
+                                          ? onDoubleTapSeekForward
+                                          : () {},
+                                      child: Container(
+                                        color: const Color(0x00000000),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                              Container(
-                                height: _theme(context).buttonBarHeight,
-                                margin: _theme(context).bottomButtonBarMargin,
+                            )
+                          : GestureDetector(
+                              onTap: onTap,
+                            ),
+                      if (mount)
+                        GestureDetector(
+                          onTap: onTap,
+                          child: Container(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            child: SafeArea(
+                              bottom: false,
+                              top: false,
+                              child: Stack(
+                                children: [
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          if (_videoConfig
+                                              .controls.showBackButton)
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              height: _theme(context)
+                                                  .buttonBarHeight,
+                                              child: Transform.translate(
+                                                offset: const Offset(-20, 0),
+                                                child: const ExitButton(),
+                                              ),
+                                            ),
+                                          Row(
+                                            children: [
+                                              if (widget.showCastButton)
+                                                //TODO
+                                                Container(),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          const Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Title(),
+                                              DurationIndicator(),
+                                            ],
+                                          ),
+                                          MaterialSeekBar(
+                                            onSeekStart: () {
+                                              _timer?.cancel();
+                                            },
+                                            onSeekEnd: () {
+                                              _timer = Timer(
+                                                _theme(context)
+                                                    .controlsHoverDuration,
+                                                () {
+                                                  if (mounted) {
+                                                    setState(
+                                                        () => visible = false);
+                                                  }
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  // Only display [primaryButtonBar] if [buffering] is false.
+                                  Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        if (widget.showFastPlaybackButtons)
+                                          BackwardButton(onPressed: show),
+                                        AnimatedOpacity(
+                                          curve: Curves.easeInOut,
+                                          opacity: buffering ? 0.0 : 1.0,
+                                          duration: _theme(context)
+                                              .controlsTransitionDuration,
+                                          child:
+                                              const MaterialPlayOrPauseButton(),
+                                        ),
+                                        if (widget.showFastPlaybackButtons)
+                                          ForwardButton(onPressed: show),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Double-Tap Seek Seek-Bar:
+                if (!mount)
+                  if (_mountSeekBackwardButton || _mountSeekForwardButton)
+                    Container(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      child: SafeArea(
+                        bottom: false,
+                        top: false,
+                        child: Column(
+                          children: [
+                            const Spacer(),
+                            Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                Column(
+                                  children: [
+                                    const Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Title(),
+                                        DurationIndicator(),
+                                      ],
+                                    ),
+                                    MaterialSeekBar(
+                                      delta: _seekBarDeltaValueNotifier,
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  height: _theme(context).buttonBarHeight,
+                                  margin: _theme(context).bottomButtonBarMargin,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                // Buffering Indicator.
+                IgnorePointer(
+                  child: Padding(
+                    padding:
+                        // Add padding in fullscreen!
+                        isFullscreen(context)
+                            ? MediaQuery.of(context).padding
+                            : EdgeInsets.zero,
+                    child: Center(
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(
+                          begin: 0.0,
+                          end: buffering ? 1.0 : 0.0,
+                        ),
+                        duration: _theme(context).controlsTransitionDuration,
+                        builder: (context, value, child) {
+                          // Only mount the buffering indicator if the opacity is greater than 0.0.
+                          // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
+                          if (value > 0.0) {
+                            return Opacity(
+                              opacity: value,
+                              child: child!,
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Double-Tap Seek Button(s):
+                if (!mount)
+                  if (_mountSeekBackwardButton || _mountSeekForwardButton)
+                    Positioned.fill(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _mountSeekBackwardButton
+                                ? TweenAnimationBuilder<double>(
+                                    tween: Tween<double>(
+                                      begin: 0.0,
+                                      end: _hideSeekBackwardButton ? 0.0 : 1.0,
+                                    ),
+                                    duration: const Duration(milliseconds: 200),
+                                    builder: (context, value, child) => Opacity(
+                                      opacity: value,
+                                      child: child,
+                                    ),
+                                    onEnd: () {
+                                      if (_hideSeekBackwardButton) {
+                                        setState(() {
+                                          _hideSeekBackwardButton = false;
+                                          _mountSeekBackwardButton = false;
+                                        });
+                                      }
+                                    },
+                                    child: _BackwardSeekIndicator(
+                                      onChanged: (value) {
+                                        _seekBarDeltaValueNotifier.value =
+                                            -value;
+                                      },
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          _hideSeekBackwardButton = true;
+                                        });
+                                        var result = controller(context)
+                                                .player
+                                                .state
+                                                .position -
+                                            value;
+                                        result = result.clamp(
+                                          Duration.zero,
+                                          controller(context)
+                                              .player
+                                              .state
+                                              .duration,
+                                        );
+                                        controller(context).player.seek(result);
+                                      },
+                                    ),
+                                  )
+                                : const SizedBox(),
+                          ),
+                          Expanded(
+                            child: _mountSeekForwardButton
+                                ? TweenAnimationBuilder<double>(
+                                    tween: Tween<double>(
+                                      begin: 0.0,
+                                      end: _hideSeekForwardButton ? 0.0 : 1.0,
+                                    ),
+                                    duration: const Duration(milliseconds: 200),
+                                    builder: (context, value, child) => Opacity(
+                                      opacity: value,
+                                      child: child,
+                                    ),
+                                    onEnd: () {
+                                      if (_hideSeekForwardButton) {
+                                        setState(() {
+                                          _hideSeekForwardButton = false;
+                                          _mountSeekForwardButton = false;
+                                        });
+                                      }
+                                    },
+                                    child: _ForwardSeekIndicator(
+                                      onChanged: (value) {
+                                        _seekBarDeltaValueNotifier.value =
+                                            value;
+                                      },
+                                      onSubmitted: (value) {
+                                        setState(() {
+                                          _hideSeekForwardButton = true;
+                                        });
+                                        var result = controller(context)
+                                                .player
+                                                .state
+                                                .position +
+                                            value;
+                                        result = result.clamp(
+                                          Duration.zero,
+                                          controller(context)
+                                              .player
+                                              .state
+                                              .duration,
+                                        );
+                                        controller(context).player.seek(result);
+                                      },
+                                    ),
+                                  )
+                                : const SizedBox(),
                           ),
                         ],
                       ),
                     ),
-                  ),
-              // Buffering Indicator.
-              IgnorePointer(
-                child: Padding(
-                  padding:
-                      // Add padding in fullscreen!
-                      isFullscreen(context)
-                          ? MediaQuery.of(context).padding
-                          : EdgeInsets.zero,
-                  child: Center(
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 0.0,
-                        end: buffering ? 1.0 : 0.0,
-                      ),
-                      duration: _theme(context).controlsTransitionDuration,
-                      builder: (context, value, child) {
-                        // Only mount the buffering indicator if the opacity is greater than 0.0.
-                        // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
-                        if (value > 0.0) {
-                          return Opacity(
-                            opacity: value,
-                            child: child!,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      child: const CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // Double-Tap Seek Button(s):
-              if (!mount)
-                if (_mountSeekBackwardButton || _mountSeekForwardButton)
-                  Positioned.fill(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _mountSeekBackwardButton
-                              ? TweenAnimationBuilder<double>(
-                                  tween: Tween<double>(
-                                    begin: 0.0,
-                                    end: _hideSeekBackwardButton ? 0.0 : 1.0,
-                                  ),
-                                  duration: const Duration(milliseconds: 200),
-                                  builder: (context, value, child) => Opacity(
-                                    opacity: value,
-                                    child: child,
-                                  ),
-                                  onEnd: () {
-                                    if (_hideSeekBackwardButton) {
-                                      setState(() {
-                                        _hideSeekBackwardButton = false;
-                                        _mountSeekBackwardButton = false;
-                                      });
-                                    }
-                                  },
-                                  child: _BackwardSeekIndicator(
-                                    onChanged: (value) {
-                                      _seekBarDeltaValueNotifier.value = -value;
-                                    },
-                                    onSubmitted: (value) {
-                                      setState(() {
-                                        _hideSeekBackwardButton = true;
-                                      });
-                                      var result = controller(context)
-                                              .player
-                                              .state
-                                              .position -
-                                          value;
-                                      result = result.clamp(
-                                        Duration.zero,
-                                        controller(context)
-                                            .player
-                                            .state
-                                            .duration,
-                                      );
-                                      controller(context).player.seek(result);
-                                    },
-                                  ),
-                                )
-                              : const SizedBox(),
-                        ),
-                        Expanded(
-                          child: _mountSeekForwardButton
-                              ? TweenAnimationBuilder<double>(
-                                  tween: Tween<double>(
-                                    begin: 0.0,
-                                    end: _hideSeekForwardButton ? 0.0 : 1.0,
-                                  ),
-                                  duration: const Duration(milliseconds: 200),
-                                  builder: (context, value, child) => Opacity(
-                                    opacity: value,
-                                    child: child,
-                                  ),
-                                  onEnd: () {
-                                    if (_hideSeekForwardButton) {
-                                      setState(() {
-                                        _hideSeekForwardButton = false;
-                                        _mountSeekForwardButton = false;
-                                      });
-                                    }
-                                  },
-                                  child: _ForwardSeekIndicator(
-                                    onChanged: (value) {
-                                      _seekBarDeltaValueNotifier.value = value;
-                                    },
-                                    onSubmitted: (value) {
-                                      setState(() {
-                                        _hideSeekForwardButton = true;
-                                      });
-                                      var result = controller(context)
-                                              .player
-                                              .state
-                                              .position +
-                                          value;
-                                      result = result.clamp(
-                                        Duration.zero,
-                                        controller(context)
-                                            .player
-                                            .state
-                                            .duration,
-                                      );
-                                      controller(context).player.seek(result);
-                                    },
-                                  ),
-                                )
-                              : const SizedBox(),
-                        ),
-                      ],
-                    ),
-                  ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -869,25 +912,30 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _videoConfig.extra ?? Container(),
+                  _videoConfig.controls.extra ?? Container(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (_videoConfig.showNextButton)
+                      if (_videoConfig.controls.showNextButton)
                         Container(
                           height: 24,
                           margin: const EdgeInsets.only(bottom: 10),
                           child: CupertinoButton(
                             padding: EdgeInsets.zero,
-                            onPressed: _videoConfig.onNextButtonPressed != null
-                                ? () => _videoConfig.onNextButtonPressed!()
+                            onPressed: _videoConfig
+                                        .controls.onNextButtonPressed !=
+                                    null
+                                ? () =>
+                                    _videoConfig.controls.onNextButtonPressed!()
                                 : () {},
                             child: Icon(
                               Icons.skip_next_rounded,
                               color: Colors.white.withValues(
-                                alpha: _videoConfig.onNextButtonPressed != null
-                                    ? 1
-                                    : 0.3,
+                                alpha:
+                                    _videoConfig.controls.onNextButtonPressed !=
+                                            null
+                                        ? 1
+                                        : 0.3,
                               ),
                             ),
                           ),
@@ -966,8 +1014,6 @@ class ForwardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showFastPlaybackButtons) return Container();
-
     return Container(
       margin: const EdgeInsets.only(left: 30),
       child: CupertinoButton(
@@ -997,8 +1043,6 @@ class BackwardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showFastPlaybackButtons) return Container();
-
     return Container(
       margin: const EdgeInsets.only(right: 30),
       child: CupertinoButton(
@@ -1040,7 +1084,7 @@ class MaterialFullscreenButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showFullScreenButton) return Container();
+    if (!_videoConfig.controls.showFullScreenButton) return Container();
 
     return IconButton(
       onPressed: () => toggleFullscreen(context),
@@ -1231,7 +1275,7 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
               ),
               const SizedBox(height: 8.0),
               Text(
-                '${value.inSeconds} ${_videoConfig.secondsText}',
+                '${value.inSeconds} $_secondsText',
                 style: const TextStyle(
                   fontSize: 12.0,
                   color: Color(0xFFFFFFFF),

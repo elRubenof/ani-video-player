@@ -57,9 +57,8 @@ class _HomeState extends State<Home> {
                 setState(() {
                   videoWidget = AniVideo(
                     url: url,
-                    videoConfiguration: VideoConfiguration(
-                      showBackButton: false,
-                      showNextButton: true,
+                    videoConfiguration: const VideoConfiguration(
+                      controls: VideoControls(showBackButton: false),
                     ),
                   );
                 });
@@ -75,17 +74,11 @@ class _HomeState extends State<Home> {
                 AniVideo.launchVideoPage(
                   context,
                   url,
-                  videoConfiguration: VideoConfiguration(
-                    titleWidget: const Text(
-                      "Test Title",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
+                  videoConfiguration: const VideoConfiguration(
+                    details: VideoDetails(title: "Example video"),
+                    controls: VideoControls(
+                      showFullScreenButton: false,
                     ),
-                    showNextButton: true,
-                    onNextButtonPressed: () => print("Test"),
-                    showFullScreenButton: false,
                   ),
                 );
               },

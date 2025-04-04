@@ -17,7 +17,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    videoConfig = widget.videoConfiguration ?? VideoConfiguration();
+    videoConfig = widget.videoConfiguration ?? const VideoConfiguration();
 
     return Scaffold(
       backgroundColor: Colors.black,

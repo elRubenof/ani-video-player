@@ -24,7 +24,7 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/vi
 ///
 /// {@endtemplate}
 
-VideoConfiguration _videoConfig = VideoConfiguration();
+VideoConfiguration _videoConfig = const VideoConfiguration();
 
 Widget DesktopVideoControls(VideoState state, VideoConfiguration videoConfig) {
   _videoConfig = videoConfig;
@@ -331,7 +331,7 @@ class ExitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showBackButton) return Container();
+    if (!_videoConfig.controls.showBackButton) return Container();
 
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 6),
@@ -356,7 +356,26 @@ class Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _videoConfig.titleWidget ?? Container();
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    double titleSize = height * 0.05;
+    if (titleSize > 30) {
+      titleSize = 30;
+    }
+
+    return Container(
+      constraints: BoxConstraints(maxWidth: width * 0.5),
+      child: Text(
+        _videoConfig.details.title ?? "",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: titleSize,
+          fontWeight: FontWeight.bold,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
   }
 }
 
@@ -573,7 +592,7 @@ class _CustomVideoPlayerControlsState
                 controller(context).player.playOrPause();
               },
               const SingleActivator(LogicalKeyboardKey.mediaTrackNext): () {
-                if (!_videoConfig.showNextButton) return;
+                if (!_videoConfig.controls.showNextButton) return;
 
                 onHover();
                 controller(context).player.next();
@@ -1235,18 +1254,19 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.showNextButton) return Container();
+    final controls = _videoConfig.controls;
+    if (!controls.showNextButton) return Container();
 
     return IconButton(
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      onPressed: _videoConfig.onNextButtonPressed != null
-          ? () => _videoConfig.onNextButtonPressed!()
+      onPressed: controls.onNextButtonPressed != null
+          ? () => controls.onNextButtonPressed!()
           : () {},
       icon: const Icon(CupertinoIcons.forward_end),
       iconSize: iconSize ?? _theme(context).buttonBarButtonSize - 1,
       color: (iconColor ?? _theme(context).buttonBarButtonColor).withValues(
-        alpha: _videoConfig.onNextButtonPressed != null ? 1 : 0.3,
+        alpha: controls.onNextButtonPressed != null ? 1 : 0.3,
       ),
     );
   }
@@ -1391,7 +1411,6 @@ class MaterialDesktopVolumeButtonState
 
   @override
   void dispose() {
-    _videoConfig.onNextButtonPressed = null;
     subscription?.cancel();
     super.dispose();
   }

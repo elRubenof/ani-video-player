@@ -1,41 +1,57 @@
 import 'package:flutter/material.dart';
 
 class VideoConfiguration {
-  Widget? titleWidget;
-  bool showNextButton;
-  Function? onNextButtonPressed;
-  //Video
-  BoxFit fit;
-  double? aspectRatio;
-  bool wakelock;
-  //Connectivity
-  bool enableCast;
-  //Video Controls
-  bool showBackButton;
-  bool showFullScreenButton;
-  Widget? extra;
-  //Mobile Video Controls
-  bool showFastPlaybackButtons;
-  bool enableDoubleTapSeek;
-  String secondsText;
+  final VideoDetails details;
+  final VideoControls controls;
+  final Map<String, String>? httpHeaders;
 
-  VideoConfiguration({
-    this.titleWidget,
-    this.showNextButton = false,
-    this.onNextButtonPressed,
-    //Video
+  const VideoConfiguration({
+    //Mobile Video Controls
+    this.details = const VideoDetails(),
+    this.controls = const VideoControls(),
+    this.httpHeaders,
+  });
+}
+
+class VideoDetails {
+  final String? title;
+  final BoxFit fit;
+  final double? aspectRatio;
+
+  /// Enable if you want to avoid device to go to sleep while video is playing
+  final bool wakelock;
+
+  const VideoDetails({
+    this.title,
     this.fit = BoxFit.contain,
     this.aspectRatio,
     this.wakelock = true,
-    //Connectivity
-    this.enableCast = true,
-    //Video Controls
-    this.showBackButton = true,
-    this.showFullScreenButton = true,
-    this.extra,
-    //Mobile Video Controls
-    this.showFastPlaybackButtons = true,
-    this.enableDoubleTapSeek = true,
-    this.secondsText = "seconds",
   });
 }
+
+class VideoControls {
+  /// Style of player controls to be shown over the video
+  final Platform platform;
+
+  /// Show an icon button on the top left corner to go to previous screen
+  final bool showBackButton;
+
+  /// Show an icon button on the bottom right corner to enable/disable fullscreen
+  final bool showFullScreenButton;
+  final bool showNextButton;
+  final Function? onNextButtonPressed;
+
+  /// Aditional widget on the bottom right corner
+  final Widget? extra;
+
+  const VideoControls({
+    this.platform = Platform.auto,
+    this.showBackButton = true,
+    this.showFullScreenButton = true,
+    this.showNextButton = true,
+    this.onNextButtonPressed,
+    this.extra,
+  });
+}
+
+enum Platform { auto, none, mobile, tv, desktop }

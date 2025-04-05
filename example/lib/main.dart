@@ -81,14 +81,21 @@ class _HomeState extends State<Home> {
                       onNextButtonPressed: (controller) {
                         controller.pause();
 
-                        controller.videoConfiguration.details.title =
-                            "Example video 2";
-
                         controller.setVideo(
                           "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                          videoConfig: VideoConfiguration(
+                            details: VideoDetails(
+                              title: "Example video 2",
+                              start: const Duration(seconds: 30),
+                            ),
+                            controls: VideoControls(
+                              showFullScreenButton: false,
+                            ),
+                          ),
                         );
                       },
                     ),
+                    onComplete: (controller) => Navigator.pop(context),
                     onBuffering: (value, controller) async {
                       if (!value) return;
 

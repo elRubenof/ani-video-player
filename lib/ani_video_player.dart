@@ -71,17 +71,23 @@ class _AniVideoState extends State<AniVideo> {
       widget.videoConfiguration ?? VideoConfiguration(),
     );
 
-    controller.player.open(
-      Media(
-        widget.url,
-        httpHeaders: controller.videoConfiguration.httpHeaders,
-      ),
+    final player = controller.player;
+    final videoConfig = controller.videoConfiguration;
+
+    player.open(
+      Media(widget.url, httpHeaders: videoConfig.httpHeaders),
     );
 
-    if (controller.videoConfiguration.onBuffering != null) {
-      controller.player.stream.buffering.listen(
+    if (videoConfig.onComplete != null) {
+      player.stream.completed.listen((value) {
+        if (value) videoConfig.onComplete!(controller);
+      });
+    }
+
+    if (videoConfig.onBuffering != null) {
+      player.stream.buffering.listen(
         (value) {
-          controller.videoConfiguration.onBuffering!(value, controller);
+          videoConfig.onBuffering!(value, controller);
         },
       );
     }

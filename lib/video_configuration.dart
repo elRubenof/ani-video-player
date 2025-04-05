@@ -5,6 +5,7 @@ class VideoConfiguration {
   final VideoDetails details;
   final VideoControls controls;
   Map<String, String>? httpHeaders;
+  final Function(AniController controller)? onComplete;
   final Function(bool value, AniController controller)? onBuffering;
 
   VideoConfiguration({
@@ -12,6 +13,7 @@ class VideoConfiguration {
     VideoDetails? details,
     VideoControls? controls,
     this.httpHeaders,
+    this.onComplete,
     this.onBuffering,
   })  : details = details ?? VideoDetails(),
         controls = controls ?? VideoControls();

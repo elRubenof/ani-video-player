@@ -1,8 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:async';
+import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/utils/utility.dart';
-import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -11,7 +11,7 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/vi
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_controls_theme_data_injector.dart';
 
-VideoConfiguration _videoConfig = const VideoConfiguration();
+late AniController _controller;
 String _secondsText = "";
 
 MaterialVideoControlsThemeData _theme(BuildContext context) =>
@@ -45,7 +45,9 @@ class ExitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.controls.showBackButton) return Container();
+    if (!_controller.videoConfiguration.controls.showBackButton) {
+      return Container();
+    }
 
     return CupertinoButton(
       onPressed: () => Navigator.pop(context),
@@ -73,7 +75,7 @@ class Title extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxWidth: width * 0.5),
       child: Text(
-        _videoConfig.details.title ?? "",
+        _controller.videoConfiguration.details.title ?? "",
         style: TextStyle(
           color: Colors.white,
           fontSize: titleSize,
@@ -117,7 +119,7 @@ class MaterialVideoControlsTheme extends InheritedWidget {
 
 /// {@macro material_video_controls}
 class MobileVideoControls extends StatefulWidget {
-  final VideoConfiguration videoConfig;
+  final AniController controller;
   final bool showFastPlaybackButtons;
   final bool enableDoubleTapSeek;
   final bool showCastButton;
@@ -125,7 +127,7 @@ class MobileVideoControls extends StatefulWidget {
 
   const MobileVideoControls({
     super.key,
-    required this.videoConfig,
+    required this.controller,
     this.showFastPlaybackButtons = true,
     this.enableDoubleTapSeek = true,
     this.showCastButton = true,
@@ -160,7 +162,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
 
   @override
   void initState() {
-    _videoConfig = widget.videoConfig;
+    _controller = widget.controller;
     _secondsText = widget.secondsText;
 
     super.initState();
@@ -365,7 +367,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          if (_videoConfig
+                                          if (_controller.videoConfiguration
                                               .controls.showBackButton)
                                             Container(
                                               alignment: Alignment.centerLeft,
@@ -912,7 +914,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _videoConfig.controls.extra ?? Container(),
+                  _controller.videoConfiguration.controls.extra ?? Container(),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -1061,7 +1063,7 @@ class SkipNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controls = _videoConfig.controls;
+    final controls = _controller.videoConfiguration.controls;
     if (!controls.showNextButton) return Container();
 
     return Container(
@@ -1072,7 +1074,7 @@ class SkipNextButton extends StatelessWidget {
         onPressed: controls.onNextButtonPressed == null
             ? null
             : () {
-                controls.onNextButtonPressed!(controller(context).player);
+                controls.onNextButtonPressed!(_controller);
               },
         child: Icon(
           Icons.skip_next_rounded,
@@ -1107,7 +1109,9 @@ class MaterialFullscreenButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.controls.showFullScreenButton) return Container();
+    if (!_controller.videoConfiguration.controls.showFullScreenButton) {
+      return Container();
+    }
 
     return IconButton(
       onPressed: () => toggleFullscreen(context),

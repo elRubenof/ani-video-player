@@ -1,34 +1,37 @@
+import 'package:ani_video_player/ani_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
 
 class VideoConfiguration {
   final VideoDetails details;
   final VideoControls controls;
-  final Map<String, String>? httpHeaders;
-  final Function(bool value, Player player)? onBuffering;
+  Map<String, String>? httpHeaders;
+  final Function(bool value, AniController controller)? onBuffering;
 
-  const VideoConfiguration({
+  VideoConfiguration({
     //Mobile Video Controls
-    this.details = const VideoDetails(),
-    this.controls = const VideoControls(),
+    VideoDetails? details,
+    VideoControls? controls,
     this.httpHeaders,
     this.onBuffering,
-  });
+  })  : details = details ?? VideoDetails(),
+        controls = controls ?? VideoControls();
 }
 
 class VideoDetails {
-  final String? title;
-  final BoxFit fit;
-  final double? aspectRatio;
+  String? title;
+  BoxFit fit;
+  double? aspectRatio;
+  Duration? start;
 
   /// Enable if you want to avoid device to go to sleep while video is playing
-  final bool wakelock;
+  bool wakelock;
 
-  const VideoDetails({
+  VideoDetails({
     this.title,
     this.fit = BoxFit.contain,
     this.aspectRatio,
     this.wakelock = true,
+    this.start = Duration.zero,
   });
 }
 
@@ -37,17 +40,17 @@ class VideoControls {
   final Platform platform;
 
   /// Show an icon button on the top left corner to go to previous screen
-  final bool showBackButton;
+  bool showBackButton;
 
   /// Show an icon button on the bottom right corner to enable/disable fullscreen
-  final bool showFullScreenButton;
-  final bool showNextButton;
-  final Function(Player player)? onNextButtonPressed;
+  bool showFullScreenButton;
+  bool showNextButton;
+  Function(AniController controller)? onNextButtonPressed;
 
   /// Aditional widget on the bottom right corner
   final Widget? extra;
 
-  const VideoControls({
+  VideoControls({
     this.platform = Platform.auto,
     this.showBackButton = true,
     this.showFullScreenButton = true,

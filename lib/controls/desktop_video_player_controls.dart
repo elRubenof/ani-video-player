@@ -5,7 +5,7 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 // ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 import 'dart:async';
-import 'package:ani_video_player/video_configuration.dart';
+import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/widgets/enhanced_mouse_region.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +24,10 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/vi
 ///
 /// {@endtemplate}
 
-VideoConfiguration _videoConfig = const VideoConfiguration();
+late AniController _controller;
 
-Widget DesktopVideoControls(VideoState state, VideoConfiguration videoConfig) {
-  _videoConfig = videoConfig;
+Widget DesktopVideoControls(AniController controller) {
+  _controller = controller;
 
   return const VideoControlsThemeDataInjector(
     child: _CustomVideoPlayerControls(),
@@ -331,7 +331,9 @@ class ExitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!_videoConfig.controls.showBackButton) return Container();
+    if (!_controller.videoConfiguration.controls.showBackButton) {
+      return Container();
+    }
 
     return Container(
       margin: const EdgeInsets.only(left: 12, right: 6),
@@ -367,7 +369,7 @@ class Title extends StatelessWidget {
     return Container(
       constraints: BoxConstraints(maxWidth: width * 0.5),
       child: Text(
-        _videoConfig.details.title ?? "",
+        _controller.videoConfiguration.details.title ?? "",
         style: TextStyle(
           color: Colors.white,
           fontSize: titleSize,
@@ -592,7 +594,9 @@ class _CustomVideoPlayerControlsState
                 controller(context).player.playOrPause();
               },
               const SingleActivator(LogicalKeyboardKey.mediaTrackNext): () {
-                if (!_videoConfig.controls.showNextButton) return;
+                if (!_controller.videoConfiguration.controls.showNextButton) {
+                  return;
+                }
 
                 onHover();
                 controller(context).player.next();
@@ -1254,14 +1258,14 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controls = _videoConfig.controls;
+    final controls = _controller.videoConfiguration.controls;
     if (!controls.showNextButton) return Container();
 
     return IconButton(
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onPressed: controls.onNextButtonPressed != null
-          ? () => controls.onNextButtonPressed!(controller(context).player)
+          ? () => controls.onNextButtonPressed!(_controller)
           : () {},
       icon: const Icon(CupertinoIcons.forward_end),
       iconSize: iconSize ?? _theme(context).buttonBarButtonSize - 1,

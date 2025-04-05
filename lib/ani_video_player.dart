@@ -1,5 +1,6 @@
 library ani_video_player;
 
+import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/controls/desktop_video_player_controls.dart';
 import 'package:ani_video_player/controls/mobile_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
@@ -59,31 +60,36 @@ class AniVideo extends StatefulWidget {
 }
 
 class _AniVideoState extends State<AniVideo> {
-  late final player = Player();
-  late final VideoConfiguration videoConfig;
+  late final AniController controller;
 
   @override
   void initState() {
     super.initState();
 
-    videoConfig = widget.videoConfiguration ?? const VideoConfiguration();
-    player.open(
+    controller = AniController(
+      Player(),
+      widget.videoConfiguration ?? VideoConfiguration(),
+    );
+
+    controller.player.open(
       Media(
         widget.url,
-        httpHeaders: videoConfig.httpHeaders,
+        httpHeaders: controller.videoConfiguration.httpHeaders,
       ),
     );
 
-    if (videoConfig.onBuffering != null) {
-      player.stream.buffering.listen(
-        (value) => videoConfig.onBuffering!(value, player),
+    if (controller.videoConfiguration.onBuffering != null) {
+      controller.player.stream.buffering.listen(
+        (value) {
+          controller.videoConfiguration.onBuffering!(value, controller);
+        },
       );
     }
   }
 
   @override
   void dispose() {
-    player.dispose();
+    controller.player.dispose();
     super.dispose();
   }
 
@@ -91,36 +97,36 @@ class _AniVideoState extends State<AniVideo> {
   Widget build(BuildContext context) {
     return Center(
       child: Video(
-        controller: VideoController(player),
-        controls: (state) => getControls(state, videoConfig),
-        fit: videoConfig.details.fit,
-        aspectRatio: videoConfig.details.aspectRatio,
-        wakelock: videoConfig.details.wakelock,
+        controller: VideoController(controller.player),
+        controls: (state) => getControls(),
+        fit: controller.videoConfiguration.details.fit,
+        aspectRatio: controller.videoConfiguration.details.aspectRatio,
+        wakelock: controller.videoConfiguration.details.wakelock,
       ),
     );
   }
 
-  Widget getControls(VideoState state, VideoConfiguration videoConfig) {
-    switch (videoConfig.controls.platform) {
+  Widget getControls() {
+    switch (controller.videoConfiguration.controls.platform) {
       case Platform.auto:
         if (Utility.isDesktop()) {
-          return DesktopVideoControls(state, videoConfig);
+          return DesktopVideoControls(controller);
         }
 
         if (Utility.isTV()) {
           //return TVVideoControls(state, videoConfig);
         }
 
-        return MobileVideoControls(videoConfig: videoConfig);
+        return MobileVideoControls(controller: controller);
 
       case Platform.desktop:
-        return DesktopVideoControls(state, videoConfig);
+        return DesktopVideoControls(controller);
 
       case Platform.tv:
       //return TVVideoControls(state, videoConfig);
 
       default:
-        return MobileVideoControls(videoConfig: videoConfig);
+        return MobileVideoControls(controller: controller);
     }
   }
 }

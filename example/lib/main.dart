@@ -1,6 +1,5 @@
 import 'package:ani_video_player/ani_video_player.dart';
 import 'package:ani_video_player/video_configuration.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -58,7 +57,7 @@ class _HomeState extends State<Home> {
                 setState(() {
                   videoWidget = AniVideo(
                     url: url,
-                    videoConfiguration: const VideoConfiguration(
+                    videoConfiguration: VideoConfiguration(
                       controls: VideoControls(showBackButton: false),
                     ),
                   );
@@ -76,20 +75,27 @@ class _HomeState extends State<Home> {
                   context,
                   url,
                   videoConfiguration: VideoConfiguration(
-                    details: const VideoDetails(title: "Example video"),
+                    details: VideoDetails(title: "Example video"),
                     controls: VideoControls(
                       showFullScreenButton: false,
-                      onNextButtonPressed: (player) => player.open(
-                        Media(
+                      onNextButtonPressed: (controller) {
+                        controller.pause();
+
+                        controller.videoConfiguration.details.title =
+                            "Example video 2";
+
+                        controller.setVideo(
                           "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                        ),
-                      ),
+                        );
+                      },
                     ),
-                    onBuffering: (value, player) async {
+                    onBuffering: (value, controller) async {
                       if (!value) return;
 
-                      await Future.delayed(const Duration(milliseconds: 500));
-                      if (player.state.buffering) print("RELOAD");
+                      await Future.delayed(const Duration(seconds: 10));
+                      if (controller.isBuffering()) {
+                        //VIDEO IS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
+                      }
                     },
                   ),
                 );

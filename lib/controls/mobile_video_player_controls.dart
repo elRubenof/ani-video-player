@@ -810,6 +810,12 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final controls = _controller.videoConfiguration.controls;
+
+    double textSize = height * 0.035;
+    if (textSize > 20) {
+      textSize = 20;
+    }
 
     double trackHeight = height * 0.005;
     if (trackHeight > 3) {
@@ -910,18 +916,34 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
               ),
             ),
             Container(
-              margin: const EdgeInsets.only(top: 15),
+              margin: const EdgeInsets.only(top: 15, bottom: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _controller.videoConfiguration.controls.extra ?? Container(),
+                  controls.extraButtonText != null
+                      ? CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: controls.onExtraButtonPressed != null
+                              ? () =>
+                                  controls.onExtraButtonPressed!(_controller)
+                              : null,
+                          child: Text(
+                            controls.extraButtonText!,
+                            style: TextStyle(
+                              fontSize: textSize,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : Container(),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SkipNextButton(),
                       MaterialFullscreenButton(),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1066,9 +1088,8 @@ class SkipNextButton extends StatelessWidget {
     final controls = _controller.videoConfiguration.controls;
     if (!controls.showNextButton) return Container();
 
-    return Container(
+    return SizedBox(
       height: 24,
-      margin: const EdgeInsets.only(bottom: 10),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: controls.onNextButtonPressed == null

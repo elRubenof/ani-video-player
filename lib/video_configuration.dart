@@ -49,8 +49,10 @@ class VideoControls {
   bool showNextButton;
   Function(AniController controller)? onNextButtonPressed;
 
-  /// Aditional widget on the bottom right corner
-  final Widget? extra;
+  /// Aditional button on the bottom left corner
+  final Icon? extraButtonIcon;
+  final String? extraButtonText;
+  final Function(AniController controller)? onExtraButtonPressed;
 
   VideoControls({
     this.platform = Platform.auto,
@@ -58,7 +60,9 @@ class VideoControls {
     this.showFullScreenButton = true,
     this.showNextButton = true,
     this.onNextButtonPressed,
-    this.extra,
+    this.extraButtonIcon,
+    this.extraButtonText,
+    this.onExtraButtonPressed,
   });
 }
 

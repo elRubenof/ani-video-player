@@ -94,6 +94,9 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       },
+                      extraButtonText: "EXTRA BUTTON",
+                      onExtraButtonPressed: (controller) =>
+                          Navigator.pop(context),
                     ),
                     onComplete: (controller) => Navigator.pop(context),
                     onBuffering: (value, controller) async {

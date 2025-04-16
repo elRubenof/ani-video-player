@@ -30,13 +30,23 @@ class AniVideo extends StatefulWidget {
     BuildContext context,
     String url, {
     VideoConfiguration? videoConfiguration,
+    bool hideDeviceUI = true,
+    bool changeOrientation = true,
   }) async {
+    late Orientation oldOrientation;
     if (Utility.isMobile()) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
+      oldOrientation = MediaQuery.of(context).orientation;
+
+      if (changeOrientation) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      }
+
+      if (hideDeviceUI) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      }
     }
 
     await Navigator.push(
@@ -50,8 +60,13 @@ class AniVideo extends StatefulWidget {
     );
 
     if (Utility.isMobile()) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      if (changeOrientation && oldOrientation == Orientation.portrait) {
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      }
+
+      if (hideDeviceUI) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
     }
   }
 

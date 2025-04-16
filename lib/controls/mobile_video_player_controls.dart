@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/utils/utility.dart';
+import 'package:ani_video_player/widgets/video_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -812,11 +813,6 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
 
-    double textSize = height * 0.035;
-    if (textSize > 20) {
-      textSize = 20;
-    }
-
     double trackHeight = height * 0.005;
     if (trackHeight > 3) {
       trackHeight = 3;
@@ -921,27 +917,18 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  controls.extraButtonText != null
-                      ? CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: controls.onExtraButtonPressed != null
-                              ? () =>
-                                  controls.onExtraButtonPressed!(_controller)
-                              : null,
-                          child: Text(
-                            controls.extraButtonText!,
-                            style: TextStyle(
-                              fontSize: textSize,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                  const Row(
+                  controls.extra ?? Container(),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      SkipNextButton(),
-                      MaterialFullscreenButton(),
+                      if (controls.showNextButton)
+                        VideoButton(
+                          enable: controls.onNextButtonPressed != null,
+                          iconData: Icons.skip_next_rounded,
+                          onPressed: () =>
+                              controls.onNextButtonPressed!(_controller),
+                        ),
+                      const MaterialFullscreenButton(),
                     ],
                   ),
                 ],
@@ -1057,51 +1044,6 @@ class BackwardButton extends StatelessWidget {
           Icons.replay_10_rounded,
           color: Colors.white,
           size: MediaQuery.of(context).size.width * 0.05,
-        ),
-      ),
-    );
-  }
-}
-
-// BUTTON: SKIP NEXT
-
-/// MaterialDesktop design skip next button.
-class SkipNextButton extends StatelessWidget {
-  /// Icon for [MaterialDesktopSkipNextButton].
-  final Widget? icon;
-
-  /// Overriden icon size for [MaterialDesktopSkipNextButton].
-  final double? iconSize;
-
-  /// Overriden icon color for [MaterialDesktopSkipNextButton].
-  final Color? iconColor;
-
-  const SkipNextButton({
-    Key? key,
-    this.icon,
-    this.iconSize,
-    this.iconColor,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final controls = _controller.videoConfiguration.controls;
-    if (!controls.showNextButton) return Container();
-
-    return SizedBox(
-      height: 24,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: controls.onNextButtonPressed == null
-            ? null
-            : () {
-                controls.onNextButtonPressed!(_controller);
-              },
-        child: Icon(
-          Icons.skip_next_rounded,
-          color: Colors.white.withValues(
-            alpha: controls.onNextButtonPressed == null ? 0.3 : 1,
-          ),
         ),
       ),
     );

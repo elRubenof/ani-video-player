@@ -1,5 +1,6 @@
 import 'package:ani_video_player/ani_video_player.dart';
 import 'package:ani_video_player/video_configuration.dart';
+import 'package:ani_video_player/widgets/video_button.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -81,22 +82,20 @@ class _HomeState extends State<Home> {
                       onNextButtonPressed: (controller) {
                         controller.pause();
 
+                        controller.videoConfiguration
+                          ..details.title = "Example video 2"
+                          ..details.start = const Duration(seconds: 30);
+
                         controller.setVideo(
                           "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                          videoConfig: VideoConfiguration(
-                            details: VideoDetails(
-                              title: "Example video 2",
-                              start: const Duration(seconds: 30),
-                            ),
-                            controls: VideoControls(
-                              showFullScreenButton: false,
-                            ),
-                          ),
                         );
                       },
-                      extraButtonText: "EXTRA BUTTON",
-                      onExtraButtonPressed: (controller) =>
-                          Navigator.pop(context),
+                      extra: VideoButton(
+                        label: "EXTRA BUTTON",
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                     onComplete: (controller) => Navigator.pop(context),
                     onBuffering: (value, controller) async {
@@ -104,7 +103,7 @@ class _HomeState extends State<Home> {
 
                       await Future.delayed(const Duration(seconds: 10));
                       if (controller.isBuffering()) {
-                        //VIDEO IS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
+                        //VIDEO WAS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
                       }
                     },
                   ),

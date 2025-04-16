@@ -968,6 +968,8 @@ class MaterialPlayOrPauseButtonState extends State<MaterialPlayOrPauseButton>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    playing = controller(context).player.state.playing;
     subscription ??= controller(context).player.stream.playing.listen((event) {
       setState(() => playing = event);
     });

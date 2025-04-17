@@ -106,7 +106,7 @@ class _AniVideoState extends State<AniVideo> {
 
   @override
   void dispose() {
-    controller.player.dispose();
+    controller.dispose();
     super.dispose();
   }
 

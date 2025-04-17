@@ -2,10 +2,11 @@ import 'package:ani_video_player/video_configuration.dart';
 import 'package:media_kit/media_kit.dart';
 
 class AniController {
-  final Player player;
+  Player player = Player();
   VideoConfiguration videoConfiguration;
 
-  AniController(this.player, this.videoConfiguration);
+  AniController({VideoConfiguration? videoConfiguration})
+      : videoConfiguration = videoConfiguration ?? VideoConfiguration();
 
   Future<void> dispose() async {
     await player.dispose();

@@ -99,7 +99,7 @@ class _VideoButtonState extends State<VideoButton> {
                     ),
                   ],
                 ),
-                onKey: (node, RawKeyEvent event) {
+                onKeyEvent: (node, KeyEvent event) {
                   final key = event.logicalKey.keyLabel;
 
                   switch (key) {

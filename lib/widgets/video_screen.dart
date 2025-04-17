@@ -1,30 +1,30 @@
+import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/ani_video_player.dart';
-import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter/material.dart';
 
 class VideoScreen extends StatefulWidget {
   final String url;
-  final VideoConfiguration? videoConfiguration;
+  final AniController? controller;
 
-  const VideoScreen({super.key, required this.url, this.videoConfiguration});
+  const VideoScreen({super.key, required this.url, this.controller});
 
   @override
   State<VideoScreen> createState() => _VideoScreenState();
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  late VideoConfiguration videoConfig;
+  late AniController controller;
 
   @override
   Widget build(BuildContext context) {
-    videoConfig = widget.videoConfiguration ?? VideoConfiguration();
+    controller = widget.controller ?? AniController();
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
         child: AniVideo(
           url: widget.url,
-          videoConfiguration: videoConfig,
+          controller: controller,
         ),
       ),
     );

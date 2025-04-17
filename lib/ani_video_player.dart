@@ -13,12 +13,12 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 class AniVideo extends StatefulWidget {
   final String url;
-  final VideoConfiguration? videoConfiguration;
+  final AniController? controller;
 
   const AniVideo({
     super.key,
     required this.url,
-    this.videoConfiguration,
+    this.controller,
   });
 
   static Future<void> ensureInitialized() async {
@@ -29,7 +29,7 @@ class AniVideo extends StatefulWidget {
   static Future<void> launchVideoFullScreen(
     BuildContext context,
     String url, {
-    VideoConfiguration? videoConfiguration,
+    AniController? controller,
     bool hideDeviceUI = true,
     bool changeOrientation = true,
   }) async {
@@ -54,7 +54,7 @@ class AniVideo extends StatefulWidget {
       MaterialPageRoute(
         builder: (context) => VideoScreen(
           url: url,
-          videoConfiguration: videoConfiguration,
+          controller: controller,
         ),
       ),
     );
@@ -75,16 +75,12 @@ class AniVideo extends StatefulWidget {
 }
 
 class _AniVideoState extends State<AniVideo> {
-  late final AniController controller;
-
+  late AniController controller;
   @override
   void initState() {
     super.initState();
 
-    controller = AniController(
-      Player(),
-      widget.videoConfiguration ?? VideoConfiguration(),
-    );
+    controller = widget.controller ?? AniController();
 
     final player = controller.player;
     final videoConfig = controller.videoConfiguration;

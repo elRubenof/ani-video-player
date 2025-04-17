@@ -12,9 +12,12 @@ class AniController {
     await player.dispose();
   }
 
-  Future<void> play() => player.play();
-  Future<void> pause() => player.pause();
-  Future<void> playOrPause() => player.playOrPause();
+  Future<void> play() async => await player.play();
+  Future<void> pause() async => await player.pause();
+  Future<void> playOrPause() async => await player.playOrPause();
+
+  Duration getPosition() => player.state.position;
+  Future<void> seek(Duration duration) async => await player.seek(duration);
 
   bool isBuffering() => player.state.buffering;
 

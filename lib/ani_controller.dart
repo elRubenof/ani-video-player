@@ -37,8 +37,8 @@ class AniController {
     await player.open(
       Media(
         url,
-        httpHeaders: videoConfig.httpHeaders,
         start: videoConfig.details.start,
+        httpHeaders: videoConfig.httpHeaders,
       ),
     );
   }

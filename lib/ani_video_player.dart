@@ -86,7 +86,11 @@ class _AniVideoState extends State<AniVideo> {
     final videoConfig = controller.videoConfiguration;
 
     player.open(
-      Media(widget.url, httpHeaders: videoConfig.httpHeaders),
+      Media(
+        widget.url,
+        start: videoConfig.details.start,
+        httpHeaders: videoConfig.httpHeaders,
+      ),
     );
 
     if (videoConfig.onComplete != null) {

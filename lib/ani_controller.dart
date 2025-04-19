@@ -1,5 +1,6 @@
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
 
 class AniController {
   bool _disposed = false;
@@ -18,7 +19,11 @@ class AniController {
   Future<void> pause() async => await player.pause();
   Future<void> playOrPause() async => await player.playOrPause();
 
-  Future<void> seek(Duration duration) async => await player.seek(duration);
+  Future<void> seek(Duration duration) async {
+    await player.seek(
+      duration.clamp(Duration.zero, this.duration),
+    );
+  }
 
   Duration get position => player.state.position;
   Duration get duration => player.state.duration;

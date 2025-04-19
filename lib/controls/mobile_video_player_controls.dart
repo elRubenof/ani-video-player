@@ -994,8 +994,6 @@ class MaterialPlayOrPauseButtonState extends State<MaterialPlayOrPauseButton>
   }
 }
 
-// BUTTON: SKIP NEXT
-
 /// Material design skip next button.
 class ForwardButton extends StatelessWidget {
   final Function? onPressed;
@@ -1009,7 +1007,7 @@ class ForwardButton extends StatelessWidget {
       child: CupertinoButton(
         onPressed: () {
           final player = controller(context).player;
-          player.seek(player.state.position + const Duration(seconds: 10));
+          _controller.seek(player.state.position + const Duration(seconds: 10));
 
           if (onPressed != null) onPressed!();
         },
@@ -1038,7 +1036,7 @@ class BackwardButton extends StatelessWidget {
       child: CupertinoButton(
         onPressed: () {
           final player = controller(context).player;
-          player.seek(player.state.position - const Duration(seconds: 10));
+          _controller.seek(player.state.position - const Duration(seconds: 10));
 
           if (onPressed != null) onPressed!();
         },

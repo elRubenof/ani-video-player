@@ -125,7 +125,7 @@ class _VideoButtonState extends State<VideoButton> {
                     size: iconSize,
                     color: Colors.grey.withValues(alpha: 0.5),
                   ),
-                if (widget.iconData == null || widget.label != null)
+                if (widget.iconData == null && widget.label != null)
                   Text(
                     widget.label!,
                     style: TextStyle(

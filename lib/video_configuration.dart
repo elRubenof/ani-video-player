@@ -47,6 +47,7 @@ class VideoControls {
   /// Show an icon button on the bottom right corner to enable/disable fullscreen
   bool showFullScreenButton;
   bool showNextButton;
+  String? nextButtonLabel;
   Function(AniController controller)? onNextButtonPressed;
 
   /// Aditional widget on the bottom left corner
@@ -57,6 +58,7 @@ class VideoControls {
     this.showBackButton = true,
     this.showFullScreenButton = true,
     this.showNextButton = true,
+    this.nextButtonLabel,
     this.onNextButtonPressed,
     this.extra,
   });

@@ -106,12 +106,14 @@ class _HomeState extends State<Home> {
           details: VideoDetails(title: "Example video"),
           controls: VideoControls(
             showFullScreenButton: false,
+            nextButtonLabel: "SKIP",
             onNextButtonPressed: (controller) {
               controller.pause();
 
               controller.videoConfiguration
                 ..details.title = "Example video 2"
-                ..details.start = const Duration(seconds: 30);
+                ..details.start = const Duration(seconds: 30)
+                ..controls.onNextButtonPressed = null;
 
               controller.setVideo(
                 "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",

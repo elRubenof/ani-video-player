@@ -174,11 +174,17 @@ class _TvVideoControlsState extends State<TvVideoControls> {
       _timer = Timer(
         _theme(context).controlsHoverDuration,
         () {
-          if (mounted) {
-            setState(() {
-              visible = false;
-            });
-          }
+          Future.delayed(Duration.zero).then((_) async {
+            while (_controller.duration == Duration.zero) {
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
+
+            if (mounted) {
+              setState(() {
+                visible = false;
+              });
+            }
+          });
         },
       );
     }
@@ -499,11 +505,11 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 switch (key) {
                   case Keys.keyLeft:
                     seek(-10, event is KeyUpEvent);
-                    break;
+                    return KeyEventResult.handled;
 
                   case Keys.keyRight:
                     seek(10, event is KeyUpEvent);
-                    break;
+                    return KeyEventResult.handled;
 
                   case Keys.keyDown:
                     if (!widget.visible) {
@@ -607,7 +613,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                   if (controls.showNextButton)
                     VideoButton(
                       enable: controls.onNextButtonPressed != null,
-                      label: "SKIP",
+                      label: controls.nextButtonLabel,
                       iconData: Icons.skip_next_rounded,
                       onFocusChange: (value) {
                         if (!value && _sliderFocusNode.hasFocus) return;
@@ -629,6 +635,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 
   Future<void> seek(int seconds, bool apply) async {
     if (apply) {
+      if (newPosition == Duration.zero) return;
+
       _controller.seek(newPosition);
       newPosition = Duration.zero;
 

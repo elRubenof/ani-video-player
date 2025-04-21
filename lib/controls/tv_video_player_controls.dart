@@ -123,9 +123,9 @@ class TvVideoControls extends StatefulWidget {
 /// {@macro material_video_controls}
 class _TvVideoControlsState extends State<TvVideoControls> {
   // Indicate if controls are been shown or not considering animation duration
-  late bool mount = false;
+  bool mount = true;
   // Indicate if controls should start to be visible or not
-  late bool visible = false;
+  bool visible = true;
 
   Timer? _timer;
 

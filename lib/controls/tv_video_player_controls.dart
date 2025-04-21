@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 
 import 'dart:async';
 import 'package:ani_video_player/ani_controller.dart';
@@ -179,10 +179,13 @@ class _TvVideoControlsState extends State<TvVideoControls> {
               await Future.delayed(const Duration(milliseconds: 500));
             }
 
+            await Future.delayed(_theme(context).controlsHoverDuration);
             if (mounted) {
               setState(() {
                 visible = false;
               });
+
+              _sliderFocusNode.requestFocus();
             }
           });
         },

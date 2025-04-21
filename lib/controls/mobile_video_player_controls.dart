@@ -142,9 +142,9 @@ class MobileVideoControls extends StatefulWidget {
 /// {@macro material_video_controls}
 class _MobileVideoControlsState extends State<MobileVideoControls> {
   // Indicate if controls are been shown or not considering animation duration
-  late bool mount = false;
+  late bool mount = true;
   // Indicate if controls should start to be visible or not
-  late bool visible = false;
+  late bool visible = true;
 
   Timer? _timer;
 
@@ -202,11 +202,18 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
       _timer = Timer(
         _theme(context).controlsHoverDuration,
         () {
-          if (mounted) {
-            setState(() {
-              visible = false;
-            });
-          }
+          Future.delayed(Duration.zero).then((_) async {
+            while (_controller.duration == Duration.zero) {
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
+
+            await Future.delayed(_theme(context).controlsHoverDuration);
+            if (mounted) {
+              setState(() {
+                visible = false;
+              });
+            }
+          });
         },
       );
     }

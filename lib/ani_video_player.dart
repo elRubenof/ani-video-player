@@ -3,6 +3,7 @@ library ani_video_player;
 import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/controls/desktop_video_player_controls.dart';
 import 'package:ani_video_player/controls/mobile_video_player_controls.dart';
+import 'package:ani_video_player/controls/tv_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
@@ -135,7 +136,7 @@ class _AniVideoState extends State<AniVideo> {
         }
 
         if (Utility.isTV()) {
-          //return TVVideoControls(state, videoConfig);
+          return TvVideoControls(controller: controller);
         }
 
         return MobileVideoControls(controller: controller);
@@ -144,7 +145,7 @@ class _AniVideoState extends State<AniVideo> {
         return DesktopVideoControls(controller);
 
       case Platform.tv:
-      //return TVVideoControls(state, videoConfig);
+        return TvVideoControls(controller: controller);
 
       default:
         return MobileVideoControls(controller: controller);

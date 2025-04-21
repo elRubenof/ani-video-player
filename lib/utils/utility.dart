@@ -6,7 +6,7 @@ class Utility {
   static bool _isTV = false;
 
   static bool isMobile() {
-    return Platform.isAndroid || Platform.isIOS;
+    return !_isTV && (Platform.isAndroid || Platform.isIOS);
   }
 
   static bool isDesktop() {

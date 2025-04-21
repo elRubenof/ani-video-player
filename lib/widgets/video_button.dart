@@ -1,26 +1,27 @@
 import 'package:ani_video_player/utils/keys.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class VideoButton extends StatefulWidget {
   final IconData? iconData;
   final String? label;
   final Function() onPressed;
   final Function(bool value)? onFocusChange;
-  final FocusNode focusNode;
+  final Function()? onPressBack;
   final Color color;
   final bool enable;
 
-  VideoButton({
+  const VideoButton({
     super.key,
     this.iconData,
     this.label,
     required this.onPressed,
     this.onFocusChange,
-    FocusNode? focusNode,
+    this.onPressBack,
     this.color = Colors.white,
     this.enable = true,
-  }) : focusNode = focusNode ?? FocusNode();
+  });
 
   @override
   State<VideoButton> createState() => _VideoButtonState();
@@ -51,13 +52,28 @@ class _VideoButtonState extends State<VideoButton> {
           ? MouseRegion(
               cursor: SystemMouseCursors.click,
               child: Focus(
-                focusNode: widget.focusNode,
                 onFocusChange: (value) {
                   if (widget.onFocusChange != null) {
                     widget.onFocusChange!(value);
                   }
 
                   setState(() => _focus = value);
+                },
+                onKeyEvent: (node, event) {
+                  final key = event.logicalKey.keyLabel;
+                  if (key == Keys.keyBack && widget.onPressBack != null) {
+                    if (event is KeyUpEvent) widget.onPressBack!();
+
+                    return KeyEventResult.handled;
+                  }
+
+                  if (event is! KeyUpEvent) return KeyEventResult.ignored;
+
+                  if (key == Keys.keyEnter || key == Keys.keyCenter) {
+                    if (widget.enable) widget.onPressed();
+                  }
+
+                  return KeyEventResult.ignored;
                 },
                 child: Stack(
                   children: [
@@ -99,21 +115,6 @@ class _VideoButtonState extends State<VideoButton> {
                     ),
                   ],
                 ),
-                onKeyEvent: (node, KeyEvent event) {
-                  final key = event.logicalKey.keyLabel;
-
-                  switch (key) {
-                    case Keys.keyEnter:
-                    case Keys.keyCenter:
-                      if (widget.enable) widget.onPressed();
-                      break;
-
-                    default:
-                      return KeyEventResult.ignored;
-                  }
-
-                  return KeyEventResult.handled;
-                },
               ),
             )
           : Row(

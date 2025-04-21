@@ -1,10 +1,13 @@
 import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/ani_video_player.dart';
+import 'package:ani_video_player/utils/keys.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await AniVideo.ensureInitialized();
 
   runApp(const MyApp());
@@ -69,53 +72,70 @@ class _HomeState extends State<Home> {
               },
             ),
             GestureDetector(
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                color: Colors.blue,
-                child: const Text("Launch Video in new Screen"),
+              onTap: launchFullScreen,
+              child: Focus(
+                autofocus: true,
+                onKeyEvent: (node, event) {
+                  if (event is KeyUpEvent &&
+                      event.logicalKey.keyLabel == Keys.keyCenter) {
+                    launchFullScreen();
+                    return KeyEventResult.handled;
+                  }
+
+                  return KeyEventResult.ignored;
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  color: Colors.blue,
+                  child: const Text("Launch Video in new Screen"),
+                ),
               ),
-              onTap: () {
-                AniVideo.launchVideoFullScreen(
-                  context,
-                  url,
-                  controller: AniController(
-                    videoConfiguration: VideoConfiguration(
-                      details: VideoDetails(title: "Example video"),
-                      controls: VideoControls(
-                        showFullScreenButton: false,
-                        onNextButtonPressed: (controller) {
-                          controller.pause();
-
-                          controller.videoConfiguration
-                            ..details.title = "Example video 2"
-                            ..details.start = const Duration(seconds: 30);
-
-                          controller.setVideo(
-                            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                          );
-                        },
-                        extra: VideoButton(
-                          label: "EXTRA BUTTON",
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                      onComplete: (controller) => Navigator.pop(context),
-                      onBuffering: (value, controller) async {
-                        if (!value) return;
-
-                        await Future.delayed(const Duration(seconds: 10));
-                        if (controller.isBuffering()) {
-                          //VIDEO WAS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
-                        }
-                      },
-                    ),
-                  ),
-                );
-              },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void launchFullScreen() {
+    AniVideo.launchVideoFullScreen(
+      context,
+      url,
+      controller: AniController(
+        videoConfiguration: VideoConfiguration(
+          details: VideoDetails(title: "Example video"),
+          controls: VideoControls(
+            showFullScreenButton: false,
+            onNextButtonPressed: (controller) {
+              controller.pause();
+
+              controller.videoConfiguration
+                ..details.title = "Example video 2"
+                ..details.start = const Duration(seconds: 30);
+
+              controller.setVideo(
+                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+              );
+            },
+            extra: VideoButton(
+              label: "EXTRA BUTTON",
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              onPressBack: () {
+                print("Prevented back");
+              },
+            ),
+          ),
+          onComplete: (controller) => Navigator.pop(context),
+          onBuffering: (value, controller) async {
+            if (!value) return;
+
+            await Future.delayed(const Duration(seconds: 10));
+            if (controller.isBuffering()) {
+              //VIDEO WAS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
+            }
+          },
         ),
       ),
     );

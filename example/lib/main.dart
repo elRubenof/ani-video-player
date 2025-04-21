@@ -103,7 +103,10 @@ class _HomeState extends State<Home> {
       url,
       controller: AniController(
         videoConfiguration: VideoConfiguration(
-          details: VideoDetails(title: "Example video"),
+          details: VideoDetails(
+            title: "Example video",
+            extraTitle: " - 1",
+          ),
           controls: VideoControls(
             showFullScreenButton: false,
             nextButtonLabel: "SKIP",
@@ -111,7 +114,8 @@ class _HomeState extends State<Home> {
               controller.pause();
 
               controller.videoConfiguration
-                ..details.title = "Example video 2"
+                ..details.title = "Example video"
+                ..details.extraTitle = " - 2"
                 ..details.start = const Duration(seconds: 30)
                 ..controls.onNextButtonPressed = null;
 

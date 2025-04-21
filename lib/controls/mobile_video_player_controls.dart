@@ -65,6 +65,8 @@ class Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final videoDetails = _controller.videoConfiguration.details;
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
@@ -73,17 +75,29 @@ class Title extends StatelessWidget {
       titleSize = 30;
     }
 
-    return Container(
-      constraints: BoxConstraints(maxWidth: width * 0.5),
-      child: Text(
-        _controller.videoConfiguration.details.title ?? "",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: titleSize,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
+    final style = TextStyle(
+      color: Colors.white,
+      fontSize: titleSize,
+      fontWeight: FontWeight.bold,
+      overflow: TextOverflow.ellipsis,
+    );
+
+    return Row(
+      children: [
+        if (videoDetails.title != null)
+          Container(
+            constraints: BoxConstraints(maxWidth: width * 0.5),
+            child: Text(
+              videoDetails.title!,
+              style: style,
+            ),
+          ),
+        if (videoDetails.extraTitle != null)
+          Text(
+            videoDetails.extraTitle!,
+            style: style,
+          )
+      ],
     );
   }
 }

@@ -21,6 +21,7 @@ class VideoConfiguration {
 
 class VideoDetails {
   String? title;
+  String? extraTitle;
   BoxFit fit;
   double? aspectRatio;
   Duration? start;
@@ -30,6 +31,7 @@ class VideoDetails {
 
   VideoDetails({
     this.title,
+    this.extraTitle,
     this.fit = BoxFit.contain,
     this.aspectRatio,
     this.wakelock = true,

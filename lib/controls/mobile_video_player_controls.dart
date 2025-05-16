@@ -453,7 +453,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                                           BackwardButton(onPressed: show),
                                         AnimatedOpacity(
                                           curve: Curves.easeInOut,
-                                          opacity: buffering ? 0.0 : 1.0,
+                                          opacity: _controller.isBuffering()
+                                              ? 0.0
+                                              : 1.0,
                                           duration: _theme(context)
                                               .controlsTransitionDuration,
                                           child:

@@ -4,6 +4,7 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions
 
 class AniController {
   bool _disposed = false;
+  bool _forceBuffering = false;
   Player player = Player();
   VideoConfiguration videoConfiguration;
 
@@ -30,7 +31,8 @@ class AniController {
 
   bool get disposed => _disposed;
 
-  bool isBuffering() => player.state.buffering;
+  bool isBuffering() => player.state.buffering || _forceBuffering;
+  bool setForceBuffering(bool value) => _forceBuffering = value;
 
   Future<void> setVideo(String url, {VideoConfiguration? videoConfig}) async {
     if (videoConfig != null) {

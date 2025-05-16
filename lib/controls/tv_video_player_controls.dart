@@ -328,7 +328,7 @@ class _TvVideoControlsState extends State<TvVideoControls> {
                     child: TweenAnimationBuilder<double>(
                       tween: Tween<double>(
                         begin: 0.0,
-                        end: buffering ? 1.0 : 0.0,
+                        end: _controller.isBuffering() ? 1.0 : 0.0,
                       ),
                       duration: _theme(context).controlsTransitionDuration,
                       builder: (context, value, child) {

@@ -383,98 +383,94 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                               horizontal: width * 0.05,
                             ),
                             color: Colors.black.withValues(alpha: 0.5),
-                            child: SafeArea(
-                              bottom: false,
-                              top: false,
-                              child: Stack(
-                                children: [
-                                  Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          if (_controller.videoConfiguration
-                                              .controls.showBackButton)
-                                            Container(
-                                              alignment: Alignment.centerLeft,
-                                              height: _theme(context)
-                                                  .buttonBarHeight,
-                                              child: Transform.translate(
-                                                offset: const Offset(-20, 0),
-                                                child: const ExitButton(),
-                                              ),
-                                            ),
-                                          Row(
-                                            children: [
-                                              if (widget.showCastButton)
-                                                //TODO
-                                                Container(),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          const Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Title(),
-                                              DurationIndicator(),
-                                            ],
-                                          ),
-                                          MaterialSeekBar(
-                                            onSeekStart: () {
-                                              _timer?.cancel();
-                                            },
-                                            onSeekEnd: () {
-                                              _timer = Timer(
-                                                _theme(context)
-                                                    .controlsHoverDuration,
-                                                () {
-                                                  if (mounted) {
-                                                    setState(
-                                                        () => visible = false);
-                                                  }
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  // Only display [primaryButtonBar] if [buffering] is false.
-                                  Center(
-                                    child: Row(
+                            child: Stack(
+                              children: [
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        if (widget.showFastPlaybackButtons)
-                                          BackwardButton(onPressed: show),
-                                        AnimatedOpacity(
-                                          curve: Curves.easeInOut,
-                                          opacity: _controller.isBuffering()
-                                              ? 0.0
-                                              : 1.0,
-                                          duration: _theme(context)
-                                              .controlsTransitionDuration,
-                                          child:
-                                              const MaterialPlayOrPauseButton(),
+                                        if (_controller.videoConfiguration
+                                            .controls.showBackButton)
+                                          Container(
+                                            alignment: Alignment.centerLeft,
+                                            height:
+                                                _theme(context).buttonBarHeight,
+                                            child: Transform.translate(
+                                              offset: const Offset(-20, 0),
+                                              child: const ExitButton(),
+                                            ),
+                                          ),
+                                        Row(
+                                          children: [
+                                            if (widget.showCastButton)
+                                              //TODO
+                                              Container(),
+                                          ],
                                         ),
-                                        if (widget.showFastPlaybackButtons)
-                                          ForwardButton(onPressed: show),
                                       ],
                                     ),
+                                    Column(
+                                      children: [
+                                        const Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Title(),
+                                            DurationIndicator(),
+                                          ],
+                                        ),
+                                        MaterialSeekBar(
+                                          onSeekStart: () {
+                                            _timer?.cancel();
+                                          },
+                                          onSeekEnd: () {
+                                            _timer = Timer(
+                                              _theme(context)
+                                                  .controlsHoverDuration,
+                                              () {
+                                                if (mounted) {
+                                                  setState(
+                                                    () => visible = false,
+                                                  );
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                // Only display [primaryButtonBar] if [buffering] is false.
+                                Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (widget.showFastPlaybackButtons)
+                                        BackwardButton(onPressed: show),
+                                      AnimatedOpacity(
+                                        curve: Curves.easeInOut,
+                                        opacity: _controller.isBuffering()
+                                            ? 0.0
+                                            : 1.0,
+                                        duration: _theme(context)
+                                            .controlsTransitionDuration,
+                                        child:
+                                            const MaterialPlayOrPauseButton(),
+                                      ),
+                                      if (widget.showFastPlaybackButtons)
+                                        ForwardButton(onPressed: show),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -489,41 +485,36 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                         horizontal: width * 0.05,
                       ),
                       color: Colors.black.withValues(alpha: 0.5),
-                      child: SafeArea(
-                        bottom: false,
-                        top: false,
-                        child: Column(
-                          children: [
-                            const Spacer(),
-                            Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Column(
-                                  children: [
-                                    const Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Title(),
-                                        DurationIndicator(),
-                                      ],
-                                    ),
-                                    MaterialSeekBar(
-                                      delta: _seekBarDeltaValueNotifier,
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  height: _theme(context).buttonBarHeight,
-                                  margin: _theme(context).bottomButtonBarMargin,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        children: [
+                          const Spacer(),
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Column(
+                                children: [
+                                  const Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Title(),
+                                      DurationIndicator(),
+                                    ],
+                                  ),
+                                  MaterialSeekBar(
+                                    delta: _seekBarDeltaValueNotifier,
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                height: _theme(context).buttonBarHeight,
+                                margin: _theme(context).bottomButtonBarMargin,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                 // Buffering Indicator.

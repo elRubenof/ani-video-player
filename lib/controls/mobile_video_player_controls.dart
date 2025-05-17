@@ -300,6 +300,8 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return VideoControlsThemeDataInjector(
       child: Theme(
         data: Theme.of(context).copyWith(
@@ -377,6 +379,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                         GestureDetector(
                           onTap: onTap,
                           child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                            ),
                             color: Colors.black.withValues(alpha: 0.5),
                             child: SafeArea(
                               bottom: false,
@@ -480,6 +485,9 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                 if (!mount)
                   if (_mountSeekBackwardButton || _mountSeekForwardButton)
                     Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: width * 0.05,
+                      ),
                       color: Colors.black.withValues(alpha: 0.5),
                       child: SafeArea(
                         bottom: false,

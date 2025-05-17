@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
@@ -5,6 +7,12 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions
 class AniController {
   bool _disposed = false;
   bool _forceBuffering = false;
+
+  final StreamController<bool> _forceBufferingController =
+      StreamController<bool>.broadcast();
+
+  Stream<bool> get forceBufferingStream => _forceBufferingController.stream;
+
   Player player = Player();
   VideoConfiguration videoConfiguration;
 
@@ -32,7 +40,12 @@ class AniController {
   bool get disposed => _disposed;
 
   bool isBuffering() => player.state.buffering || _forceBuffering;
-  bool setForceBuffering(bool value) => _forceBuffering = value;
+  void setForceBuffering(bool value) {
+    if (_forceBuffering != value) {
+      _forceBuffering = value;
+      _forceBufferingController.add(value);
+    }
+  }
 
   Future<void> setVideo(String url, {VideoConfiguration? videoConfig}) async {
     if (videoConfig != null) {

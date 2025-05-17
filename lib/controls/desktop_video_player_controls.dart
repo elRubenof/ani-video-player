@@ -436,7 +436,6 @@ class _CustomVideoPlayerControlsState
   Timer? _timer;
 
   late /* private */ var playlist = controller(context).player.state.playlist;
-  late bool buffering = controller(context).player.state.buffering;
 
   DateTime last = DateTime.now();
 
@@ -471,9 +470,12 @@ class _CustomVideoPlayerControlsState
           ),
           controller(context).player.stream.buffering.listen(
             (event) {
-              setState(() {
-                buffering = event;
-              });
+              setState(() {});
+            },
+          ),
+          _controller.forceBufferingStream.listen(
+            (event) {
+              setState(() {});
             },
           ),
         ],
@@ -800,7 +802,9 @@ class _CustomVideoPlayerControlsState
                                     Expanded(
                                       child: AnimatedOpacity(
                                         curve: Curves.easeInOut,
-                                        opacity: buffering ? 0.0 : 1.0,
+                                        opacity: _controller.isBuffering()
+                                            ? 0.0
+                                            : 1.0,
                                         duration: _theme(context)
                                             .controlsTransitionDuration,
                                         child: Center(

@@ -144,7 +144,6 @@ class _TvVideoControlsState extends State<TvVideoControls> {
   Timer? _timer;
 
   late /* private */ var playlist = controller(context).player.state.playlist;
-  late bool buffering = controller(context).player.state.buffering;
 
   final List<StreamSubscription> subscriptions = [];
 
@@ -177,9 +176,12 @@ class _TvVideoControlsState extends State<TvVideoControls> {
           ),
           controller(context).player.stream.buffering.listen(
             (event) {
-              setState(() {
-                buffering = event;
-              });
+              setState(() {});
+            },
+          ),
+          _controller.forceBufferingStream.listen(
+            (event) {
+              setState(() {});
             },
           ),
         ],
@@ -217,7 +219,7 @@ class _TvVideoControlsState extends State<TvVideoControls> {
   }
 
   void onTap() {
-    if (buffering) return;
+    if (_controller.isBuffering()) return;
 
     if (!visible && !mount) {
       show();

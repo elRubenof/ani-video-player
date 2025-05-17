@@ -163,7 +163,6 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
   Timer? _timer;
 
   late /* private */ var playlist = controller(context).player.state.playlist;
-  late bool buffering = controller(context).player.state.buffering;
 
   bool _mountSeekBackwardButton = false;
   bool _mountSeekForwardButton = false;
@@ -205,9 +204,12 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
           ),
           controller(context).player.stream.buffering.listen(
             (event) {
-              setState(() {
-                buffering = event;
-              });
+              setState(() {});
+            },
+          ),
+          _controller.forceBufferingStream.listen(
+            (event) {
+              setState(() {});
             },
           ),
         ],
@@ -243,7 +245,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
   }
 
   void onTap() {
-    if (buffering) return;
+    if (_controller.isBuffering()) return;
 
     if (!visible && !mount) {
       setState(() {

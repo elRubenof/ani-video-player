@@ -60,8 +60,40 @@ class ExitButton extends StatelessWidget {
   }
 }
 
-class Title extends StatelessWidget {
+class Title extends StatefulWidget {
   const Title({super.key});
+
+  @override
+  State<Title> createState() => _TitleState();
+}
+
+class _TitleState extends State<Title> {
+  final List<StreamSubscription> subscriptions = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (subscriptions.isEmpty) {
+      subscriptions.addAll(
+        [
+          controller(context).player.stream.playlist.listen(
+            (event) {
+              setState(() {});
+            },
+          ),
+        ],
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in subscriptions) {
+      subscription.cancel();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

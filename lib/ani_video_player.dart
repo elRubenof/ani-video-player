@@ -1,12 +1,12 @@
 library ani_video_player;
 
 import 'package:ani_video_player/ani_controller.dart';
-import 'package:ani_video_player/controls/desktop_video_player_controls.dart';
 import 'package:ani_video_player/controls/mobile_video_player_controls.dart';
 import 'package:ani_video_player/controls/tv_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -93,6 +93,19 @@ class _AniVideoState extends State<AniVideo> {
     final player = controller.player!;
     final videoConfig = controller.videoConfiguration;
 
+    final platform = videoConfig.controls.platform;
+    if (platform == Platform.mobile || Utility.isMobile()) {
+      player.addOnInitListener(() async {
+        await player.startRendererScanning();
+      });
+
+      player.addOnRendererEventListener((type, id, name) {
+        if (!kReleaseMode) {
+          debugPrint('OnRendererEventListener $type $id $name');
+        }
+      });
+    }
+
     player.addListener(() {
       if (videoConfig.onComplete != null) {
         if (player.value.isEnded) videoConfig.onComplete!(controller);
@@ -150,18 +163,11 @@ class _AniVideoState extends State<AniVideo> {
   Widget getControls() {
     switch (controller.videoConfiguration.controls.platform) {
       case Platform.auto:
-        if (Utility.isDesktop()) {
-          return DesktopVideoControls(controller);
-        }
-
         if (Utility.isTV()) {
           return TvVideoControls(controller: controller);
         }
 
         return MobileVideoControls(controller: controller);
-
-      case Platform.desktop:
-        return DesktopVideoControls(controller);
 
       case Platform.tv:
         return TvVideoControls(controller: controller);

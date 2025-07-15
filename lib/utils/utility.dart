@@ -9,10 +9,6 @@ class Utility {
     return !_isTV && (Platform.isAndroid || Platform.isIOS);
   }
 
-  static bool isDesktop() {
-    return Platform.isWindows || Platform.isMacOS || Platform.isLinux;
-  }
-
   static bool isTV() {
     return _isTV;
   }

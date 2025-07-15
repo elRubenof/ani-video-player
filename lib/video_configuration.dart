@@ -67,4 +67,4 @@ class VideoControls {
   });
 }
 
-enum Platform { auto, none, mobile, tv, desktop }
+enum Platform { auto, none, mobile, tv }

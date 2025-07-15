@@ -6,17 +6,13 @@ import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/widgets/video_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
 late AniController _controller;
 String _secondsText = "";
 
 MaterialVideoControlsThemeData _theme(BuildContext context) =>
-    FullscreenInheritedWidget.maybeOf(context) == null
-        ? MaterialVideoControlsTheme.maybeOf(context)?.normal ??
-            kDefaultMaterialVideoControlsThemeData
-        : MaterialVideoControlsTheme.maybeOf(context)?.fullscreen ??
-            kDefaultMaterialVideoControlsThemeDataFullscreen;
+    MaterialVideoControlsTheme.maybeOf(context)?.fullscreen ??
+    kDefaultMaterialVideoControlsThemeDataFullscreen;
 
 final kDefaultMaterialVideoControlsThemeData = MaterialVideoControlsThemeData();
 
@@ -492,11 +488,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
               // Buffering Indicator.
               IgnorePointer(
                 child: Padding(
-                  padding:
-                      // Add padding in fullscreen!
-                      isFullscreen(context)
-                          ? MediaQuery.of(context).padding
-                          : EdgeInsets.zero,
+                  padding: MediaQuery.of(context).padding,
                   child: Center(
                     child: TweenAnimationBuilder<double>(
                       tween: Tween<double>(
@@ -1013,10 +1005,11 @@ class MaterialFullscreenButton extends StatelessWidget {
       return Container();
     }
 
+    //TODO IMPLEMENT FULLSCREEN SYSTEM
     return IconButton(
-      onPressed: () => toggleFullscreen(context),
+      onPressed: () {},
       icon: icon ??
-          (isFullscreen(context)
+          (true
               ? const Icon(Icons.fullscreen_exit)
               : const Icon(Icons.fullscreen)),
       iconSize: 24,

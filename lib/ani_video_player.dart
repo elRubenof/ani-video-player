@@ -9,28 +9,20 @@ import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 
 class AniVideo extends StatefulWidget {
-  final String url;
-  final AniController? controller;
+  final AniController controller;
 
-  const AniVideo({
-    super.key,
-    required this.url,
-    this.controller,
-  });
+  const AniVideo({super.key, required this.controller});
 
   static Future<void> ensureInitialized() async {
-    MediaKit.ensureInitialized();
     await Utility.checkTV();
   }
 
   static Future<void> launchVideoFullScreen(
     BuildContext context,
-    String url, {
-    AniController? controller,
+    AniController controller, {
     bool hideDeviceUI = true,
     bool changeOrientation = true,
   }) async {
@@ -53,10 +45,7 @@ class AniVideo extends StatefulWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VideoScreen(
-          url: url,
-          controller: controller,
-        ),
+        builder: (context) => VideoScreen(controller: controller),
       ),
     );
 
@@ -76,37 +65,55 @@ class AniVideo extends StatefulWidget {
 }
 
 class _AniVideoState extends State<AniVideo> {
+  bool _init = false;
+  UniqueKey _key = UniqueKey();
+
   late AniController controller;
+
   @override
   void initState() {
     super.initState();
 
-    controller = widget.controller ?? AniController();
+    controller = widget.controller;
+  }
 
-    final player = controller.player;
-    final videoConfig = controller.videoConfiguration;
-
-    player.open(
-      Media(
-        widget.url,
-        start: videoConfig.details.start,
-        httpHeaders: videoConfig.httpHeaders,
+  void initVideo() {
+    controller.player = VlcPlayerController.network(
+      controller.videoConfiguration.url,
+      hwAcc: HwAcc.full,
+      options: VlcPlayerOptions(
+        http: VlcHttpOptions(
+          Utility.parseHttpHeaders(
+            controller.videoConfiguration.httpHeaders ?? {},
+          ),
+        ),
       ),
     );
 
-    if (videoConfig.onComplete != null) {
-      player.stream.completed.listen((value) {
-        if (value) videoConfig.onComplete!(controller);
-      });
-    }
+    final player = controller.player!;
+    final videoConfig = controller.videoConfiguration;
 
-    if (videoConfig.onBuffering != null) {
-      player.stream.buffering.listen(
-        (value) {
-          videoConfig.onBuffering!(value, controller);
-        },
-      );
-    }
+    player.addListener(() {
+      if (videoConfig.onComplete != null) {
+        if (player.value.isEnded) videoConfig.onComplete!(controller);
+      }
+
+      if (videoConfig.onBuffering != null) {
+        videoConfig.onBuffering!(player.value.isBuffering, controller);
+      }
+
+      if (!player.value.isInitialized) {
+        if (_init) {
+          _init = false;
+          setState(() => _key = UniqueKey());
+        }
+      }
+
+      if (player.value.isInitialized && player.value.isPlaying && !_init) {
+        _init = true;
+        player.seekTo(videoConfig.details.start);
+      }
+    });
   }
 
   @override
@@ -117,14 +124,26 @@ class _AniVideoState extends State<AniVideo> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Video(
-        controller: VideoController(controller.player),
-        controls: (state) => getControls(),
-        fit: controller.videoConfiguration.details.fit,
-        aspectRatio: controller.videoConfiguration.details.aspectRatio,
-        wakelock: controller.videoConfiguration.details.wakelock,
-      ),
+    initVideo();
+
+    return Stack(
+      key: _key,
+      children: [
+        Center(
+          child: ExcludeFocus(
+            child: VlcPlayer(
+              controller: controller.player!,
+              aspectRatio: 16 / 9,
+              placeholder: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        getControls(),
+      ],
     );
   }
 

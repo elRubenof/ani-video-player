@@ -61,9 +61,9 @@ class _HomeState extends State<Home> {
 
                 setState(() {
                   videoWidget = AniVideo(
-                    url: url,
                     controller: AniController(
-                      videoConfiguration: VideoConfiguration(
+                      VideoConfiguration(
+                        url: url,
                         controls: VideoControls(showBackButton: false),
                       ),
                     ),
@@ -100,9 +100,9 @@ class _HomeState extends State<Home> {
   void launchFullScreen() {
     AniVideo.launchVideoFullScreen(
       context,
-      url,
-      controller: AniController(
-        videoConfiguration: VideoConfiguration(
+      AniController(
+        VideoConfiguration(
+          url: url,
           details: VideoDetails(
             title: "Example video",
             extraTitle: " - 1",
@@ -140,6 +140,7 @@ class _HomeState extends State<Home> {
             await Future.delayed(const Duration(seconds: 10));
             if (controller.isBuffering()) {
               //VIDEO WAS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
+              print("BUFFERING EXAMPLE");
             }
           },
         ),

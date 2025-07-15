@@ -2,6 +2,7 @@ import 'package:ani_video_player/ani_controller.dart';
 import 'package:flutter/material.dart';
 
 class VideoConfiguration {
+  String url;
   final VideoDetails details;
   final VideoControls controls;
   Map<String, String>? httpHeaders;
@@ -9,7 +10,7 @@ class VideoConfiguration {
   final Function(bool value, AniController controller)? onBuffering;
 
   VideoConfiguration({
-    //Mobile Video Controls
+    required this.url,
     VideoDetails? details,
     VideoControls? controls,
     this.httpHeaders,
@@ -24,7 +25,7 @@ class VideoDetails {
   String? extraTitle;
   BoxFit fit;
   double? aspectRatio;
-  Duration? start;
+  Duration start;
 
   /// Enable if you want to avoid device to go to sleep while video is playing
   bool wakelock;

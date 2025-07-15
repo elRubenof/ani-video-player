@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 
 class AniController {
   bool _disposed = false;
@@ -13,33 +13,38 @@ class AniController {
 
   Stream<bool> get forceBufferingStream => _forceBufferingController.stream;
 
-  Player player = Player();
+  VlcPlayerController? player;
   VideoConfiguration videoConfiguration;
 
-  AniController({VideoConfiguration? videoConfiguration})
-      : videoConfiguration = videoConfiguration ?? VideoConfiguration();
+  AniController(this.videoConfiguration);
 
   Future<void> dispose() async {
-    await player.dispose();
+    if (player!.value.isInitialized) {
+      await player!.stop();
+      await player!.stopRendererScanning();
+    }
+
+    await player!.dispose();
     _disposed = true;
   }
 
-  Future<void> play() async => await player.play();
-  Future<void> pause() async => await player.pause();
-  Future<void> playOrPause() async => await player.playOrPause();
+  Future<void> play() async => await player!.play();
+  Future<void> pause() async => await player!.pause();
+  Future<void> playOrPause() async =>
+      player!.value.isPlaying ? await pause() : await play();
 
   Future<void> seek(Duration duration) async {
-    await player.seek(
-      duration.clamp(Duration.zero, this.duration),
+    await player!.seekTo(
+      Utility.clampDuration(duration, Duration.zero, this.duration),
     );
   }
 
-  Duration get position => player.state.position;
-  Duration get duration => player.state.duration;
+  Duration get position => player!.value.position;
+  Duration get duration => player!.value.duration;
 
   bool get disposed => _disposed;
 
-  bool isBuffering() => player.state.buffering || _forceBuffering;
+  bool isBuffering() => player!.value.isBuffering || _forceBuffering;
   void setForceBuffering(bool value) {
     if (_forceBuffering != value) {
       _forceBuffering = value;
@@ -54,12 +59,7 @@ class AniController {
       videoConfig = videoConfiguration;
     }
 
-    await player.open(
-      Media(
-        url,
-        start: videoConfig.details.start,
-        httpHeaders: videoConfig.httpHeaders,
-      ),
-    );
+    videoConfiguration.url = url;
+    player!.value = VlcPlayerValue(duration: duration);
   }
 }

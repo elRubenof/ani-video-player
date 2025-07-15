@@ -432,6 +432,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                                       child: MaterialPlayOrPauseButton(
                                         playing:
                                             _controller.player!.value.isPlaying,
+                                        onPressed: show,
                                       ),
                                     ),
                                     if (widget.showFastPlaybackButtons)
@@ -650,10 +651,10 @@ class MaterialSeekBar extends StatefulWidget {
 
 class MaterialSeekBarState extends State<MaterialSeekBar> {
   bool tapped = false;
-  double slider = 0.0;
+  bool playing = false;
 
+  double slider = 0.0;
   Duration position = Duration.zero;
-  Duration newPosition = Duration.zero;
 
   @override
   void initState() {
@@ -686,6 +687,12 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 
   void onPointerDown() {
     widget.onSeekStart?.call();
+
+    if (_controller.player!.value.isPlaying) {
+      playing = true;
+      _controller.player!.pause();
+    }
+
     setState(() {
       tapped = true;
     });
@@ -696,7 +703,12 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     setState(() {
       tapped = false;
     });
-    _controller.seek(widget.duration * slider);
+
+    _controller.seek(widget.duration * slider).then((_) {
+      if (playing) _controller.play();
+      playing = false;
+    });
+
     setState(() {
       // Explicitly set the position to prevent the slider from jumping.
       position = widget.duration * slider;
@@ -743,7 +755,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
 
-    if (newPosition == Duration.zero) position = widget.position;
+    if (!tapped) position = widget.position;
 
     double trackHeight = height * 0.005;
     if (trackHeight > 3) {
@@ -878,8 +890,13 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 /// A material design play/pause button.
 class MaterialPlayOrPauseButton extends StatefulWidget {
   final bool playing;
+  final Function? onPressed;
 
-  const MaterialPlayOrPauseButton({super.key, required this.playing});
+  const MaterialPlayOrPauseButton({
+    super.key,
+    required this.playing,
+    this.onPressed,
+  });
 
   @override
   MaterialPlayOrPauseButtonState createState() =>
@@ -898,7 +915,11 @@ class MaterialPlayOrPauseButtonState extends State<MaterialPlayOrPauseButton>
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-      onPressed: _controller.playOrPause,
+      onPressed: () {
+        _controller.playOrPause();
+
+        if (widget.onPressed != null) widget.onPressed!();
+      },
       child: Icon(
         widget.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
         color: Colors.white,

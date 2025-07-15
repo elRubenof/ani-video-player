@@ -3,24 +3,17 @@
 import 'dart:async';
 import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/utils/keys.dart';
+import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/widgets/video_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:media_kit_video/media_kit_video.dart';
-
-import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
-import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
-import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_controls_theme_data_injector.dart';
 
 late AniController _controller;
 late FocusNode _sliderFocusNode;
 
 MaterialVideoControlsThemeData _theme(BuildContext context) =>
-    FullscreenInheritedWidget.maybeOf(context) == null
-        ? MaterialVideoControlsTheme.maybeOf(context)?.normal ??
-            kDefaultMaterialVideoControlsThemeData
-        : MaterialVideoControlsTheme.maybeOf(context)?.fullscreen ??
-            kDefaultMaterialVideoControlsThemeDataFullscreen;
+    MaterialVideoControlsTheme.maybeOf(context)?.fullscreen ??
+    kDefaultMaterialVideoControlsThemeDataFullscreen;
 
 final kDefaultMaterialVideoControlsThemeData = MaterialVideoControlsThemeData();
 
@@ -41,41 +34,13 @@ class MaterialVideoControlsThemeData {
   MaterialVideoControlsThemeData();
 }
 
+// ignore: use_key_in_widget_constructors
 class Title extends StatefulWidget {
-  const Title({super.key});
-
   @override
   State<Title> createState() => _TitleState();
 }
 
 class _TitleState extends State<Title> {
-  final List<StreamSubscription> subscriptions = [];
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (subscriptions.isEmpty) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.playlist.listen(
-            (event) {
-              setState(() {});
-            },
-          ),
-        ],
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final subscription in subscriptions) {
-      subscription.cancel();
-    }
-
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final videoDetails = _controller.videoConfiguration.details;
@@ -168,22 +133,56 @@ class TvVideoControls extends StatefulWidget {
 
 /// {@macro material_video_controls}
 class _TvVideoControlsState extends State<TvVideoControls> {
-  // Indicate if controls are been shown or not considering animation duration
   bool mount = true;
-  // Indicate if controls should start to be visible or not
   bool visible = true;
 
   Timer? _timer;
 
-  late /* private */ var playlist = controller(context).player.state.playlist;
-
-  final List<StreamSubscription> subscriptions = [];
+  double sliderValue = 0.0;
+  bool validPosition = false;
+  Duration position = Duration.zero;
+  Duration duration = Duration.zero;
 
   @override
   void initState() {
     _controller = widget.controller;
+    _controller.player!.addListener(listener);
+
+    _timer = Timer(
+      _theme(context).controlsHoverDuration,
+      () {
+        Future.delayed(Duration.zero).then((_) async {
+          while (_controller.duration == Duration.zero) {
+            await Future.delayed(const Duration(milliseconds: 500));
+          }
+
+          await Future.delayed(_theme(context).controlsHoverDuration);
+          if (mounted) {
+            setState(() {
+              visible = false;
+            });
+
+            _sliderFocusNode.requestFocus();
+          }
+        });
+      },
+    );
 
     super.initState();
+  }
+
+  void listener() {
+    if (!mounted) return;
+
+    if (_controller.player!.value.isInitialized) {
+      position = _controller.player!.value.position;
+      duration = _controller.player!.value.duration;
+
+      setState(() {
+        validPosition = duration.compareTo(position) >= 0;
+        sliderValue = validPosition ? position.inSeconds.toDouble() : 0;
+      });
+    }
   }
 
   @override
@@ -191,63 +190,6 @@ class _TvVideoControlsState extends State<TvVideoControls> {
     if (mounted) {
       super.setState(fn);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (subscriptions.isEmpty) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.playlist.listen(
-            (event) {
-              setState(() {
-                playlist = event;
-              });
-            },
-          ),
-          controller(context).player.stream.buffering.listen(
-            (event) {
-              setState(() {});
-            },
-          ),
-          _controller.forceBufferingStream.listen(
-            (event) {
-              setState(() {});
-            },
-          ),
-        ],
-      );
-
-      _timer = Timer(
-        _theme(context).controlsHoverDuration,
-        () {
-          Future.delayed(Duration.zero).then((_) async {
-            while (_controller.duration == Duration.zero) {
-              await Future.delayed(const Duration(milliseconds: 500));
-            }
-
-            await Future.delayed(_theme(context).controlsHoverDuration);
-            if (mounted) {
-              setState(() {
-                visible = false;
-              });
-
-              _sliderFocusNode.requestFocus();
-            }
-          });
-        },
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final subscription in subscriptions) {
-      subscription.cancel();
-    }
-
-    super.dispose();
   }
 
   void onTap() {
@@ -291,100 +233,96 @@ class _TvVideoControlsState extends State<TvVideoControls> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    return VideoControlsThemeDataInjector(
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          focusColor: const Color(0x00000000),
-          hoverColor: const Color(0x00000000),
-          splashColor: const Color(0x00000000),
-          highlightColor: const Color(0x00000000),
-        ),
-        child: Material(
-          elevation: 0.0,
-          borderOnForeground: false,
-          animationDuration: Duration.zero,
-          color: const Color(0x00000000),
-          shadowColor: const Color(0x00000000),
-          surfaceTintColor: const Color(0x00000000),
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              // Controls:
-              AnimatedOpacity(
-                curve: Curves.easeInOut,
-                opacity: visible ? 1.0 : 0.0,
-                duration: _theme(context).controlsTransitionDuration,
-                onEnd: () {
-                  setState(() {
-                    if (!visible) {
-                      mount = false;
-                    }
-                  });
-                },
-                child: Opacity(
-                  opacity: mount ? 1 : 0,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-                    color: Colors.black.withValues(alpha: 0.5),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Title(),
-                            DurationIndicator(),
-                          ],
-                        ),
-                        MaterialSeekBar(
-                          visible: visible,
-                          show: show,
-                          hide: hide,
-                        ),
-                      ],
-                    ),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        focusColor: const Color(0x00000000),
+        hoverColor: const Color(0x00000000),
+        splashColor: const Color(0x00000000),
+        highlightColor: const Color(0x00000000),
+      ),
+      child: Material(
+        elevation: 0.0,
+        borderOnForeground: false,
+        animationDuration: Duration.zero,
+        color: const Color(0x00000000),
+        shadowColor: const Color(0x00000000),
+        surfaceTintColor: const Color(0x00000000),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            // Controls:
+            AnimatedOpacity(
+              curve: Curves.easeInOut,
+              opacity: visible ? 1.0 : 0.0,
+              duration: _theme(context).controlsTransitionDuration,
+              onEnd: () {
+                setState(() {
+                  if (!visible) {
+                    mount = false;
+                  }
+                });
+              },
+              child: Opacity(
+                opacity: mount ? 1 : 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Title(),
+                          DurationIndicator(duration: duration),
+                        ],
+                      ),
+                      MaterialSeekBar(
+                        visible: visible,
+                        show: show,
+                        hide: hide,
+                        position: position,
+                        duration: duration,
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
 
-              // Buffering Indicator.
-              IgnorePointer(
-                child: Padding(
-                  padding:
-                      // Add padding in fullscreen!
-                      isFullscreen(context)
-                          ? MediaQuery.of(context).padding
-                          : EdgeInsets.zero,
-                  child: Center(
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 0.0,
-                        end: _controller.isBuffering() ? 1.0 : 0.0,
-                      ),
-                      duration: _theme(context).controlsTransitionDuration,
-                      builder: (context, value, child) {
-                        // Only mount the buffering indicator if the opacity is greater than 0.0.
-                        // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
-                        if (value > 0.0) {
-                          return Opacity(
-                            opacity: value,
-                            child: child!,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      child: const CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
+            // Buffering Indicator.
+            IgnorePointer(
+              child: Padding(
+                padding: MediaQuery.of(context).padding,
+                child: Center(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: 0.0,
+                      end: _controller.isBuffering() ? 1.0 : 0.0,
+                    ),
+                    duration: _theme(context).controlsTransitionDuration,
+                    builder: (context, value, child) {
+                      // Only mount the buffering indicator if the opacity is greater than 0.0.
+                      // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
+                      if (value > 0.0) {
+                        return Opacity(
+                          opacity: value,
+                          child: child!,
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -399,6 +337,8 @@ class MaterialSeekBar extends StatefulWidget {
   final bool visible;
   final Function() show;
   final Function() hide;
+  final Duration position;
+  final Duration duration;
 
   const MaterialSeekBar({
     Key? key,
@@ -406,6 +346,8 @@ class MaterialSeekBar extends StatefulWidget {
     required this.visible,
     required this.show,
     required this.hide,
+    required this.position,
+    required this.duration,
   }) : super(key: key);
 
   @override
@@ -414,30 +356,11 @@ class MaterialSeekBar extends StatefulWidget {
 
 class MaterialSeekBarState extends State<MaterialSeekBar> {
   bool tapped = false;
-  double slider = 0.0;
 
+  Duration position = Duration.zero;
   Duration newPosition = Duration.zero;
 
-  late bool playing = controller(context).player.state.playing;
-  late Duration position = controller(context).player.state.position;
-  late Duration duration = controller(context).player.state.duration;
-  late Duration buffer = controller(context).player.state.buffer;
-
   final List<StreamSubscription> subscriptions = [];
-
-  @override
-  void setState(VoidCallback fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  void listener() {
-    setState(() {
-      final delta = widget.delta?.value ?? Duration.zero;
-      position = controller(context).player.state.position + delta;
-    });
-  }
 
   @override
   void initState() {
@@ -447,69 +370,26 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     widget.delta?.addListener(listener);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (subscriptions.isEmpty && widget.delta == null) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.playing.listen((event) {
-            setState(() {
-              playing = event;
-            });
-          }),
-          controller(context).player.stream.completed.listen((event) {
-            setState(() {
-              position = Duration.zero;
-            });
-          }),
-          controller(context).player.stream.position.listen((event) {
-            setState(() {
-              if (!tapped) {
-                position = event;
-              }
-            });
-          }),
-          controller(context).player.stream.duration.listen((event) {
-            setState(() {
-              duration = event;
-            });
-          }),
-          controller(context).player.stream.buffer.listen((event) {
-            setState(() {
-              buffer = event;
-            });
-          }),
-        ],
-      );
-    }
+  void listener() {
+    setState(() {
+      final delta = widget.delta?.value ?? Duration.zero;
+      position = _controller.player!.value.position + delta;
+    });
   }
 
   @override
-  void dispose() {
-    widget.delta?.removeListener(listener);
-    for (final subscription in subscriptions) {
-      subscription.cancel();
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
-    super.dispose();
   }
 
   /// Returns the current playback position in percentage.
   double get positionPercent {
-    if (position == Duration.zero || duration == Duration.zero) {
+    if (position == Duration.zero || widget.duration == Duration.zero) {
       return 0.0;
     } else {
-      final value = position.inMilliseconds / duration.inMilliseconds;
-      return value.clamp(0.0, 1.0);
-    }
-  }
-
-  /// Returns the current playback buffer position in percentage.
-  double get bufferPercent {
-    if (buffer == Duration.zero || duration == Duration.zero) {
-      return 0.0;
-    } else {
-      final value = buffer.inMilliseconds / duration.inMilliseconds;
+      final value = position.inMilliseconds / widget.duration.inMilliseconds;
       return value.clamp(0.0, 1.0);
     }
   }
@@ -518,6 +398,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
+
+    if (newPosition == Duration.zero) position = widget.position;
 
     double trackHeight = height * 0.005;
     if (trackHeight > 3) {
@@ -553,6 +435,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 }
 
                 widget.show();
+
                 switch (key) {
                   case Keys.keyLeft:
                     seek(-10, event is KeyUpEvent);
@@ -597,7 +480,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                           alignment: Alignment.bottomLeft,
                           children: [
                             Container(
-                              width: constraints.maxWidth * bufferPercent,
+                              width: constraints.maxWidth * 0,
                               color: const Color(0x3DFFFFFF),
                             ),
                           ],
@@ -640,7 +523,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                           width: 100,
                           alignment: Alignment.center,
                           child: Text(
-                            position.label(reference: position),
+                            Utility.labelDuration(position),
                             style: TextStyle(
                               color: Colors.white,
                               height: 1.3,
@@ -702,7 +585,13 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     newPosition += Duration(seconds: seconds);
 
     await _controller.pause();
-    setState(() => position = newPosition.clamp(Duration.zero, duration));
+    setState(() {
+      position = Utility.clampDuration(
+        newPosition,
+        Duration.zero,
+        widget.duration,
+      );
+    });
   }
 }
 
@@ -710,52 +599,20 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 
 /// Material design position indicator.
 class DurationIndicator extends StatefulWidget {
-  const DurationIndicator({super.key});
+  final Duration duration;
+
+  const DurationIndicator({super.key, required this.duration});
 
   @override
   DurationIndicatorState createState() => DurationIndicatorState();
 }
 
 class DurationIndicatorState extends State<DurationIndicator> {
-  late Duration position = controller(context).player.state.position;
-  late Duration duration = controller(context).player.state.duration;
-
-  final List<StreamSubscription> subscriptions = [];
-
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (subscriptions.isEmpty) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.position.listen((event) {
-            setState(() {
-              position = event;
-            });
-          }),
-          controller(context).player.stream.duration.listen((event) {
-            setState(() {
-              duration = event;
-            });
-          }),
-        ],
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final subscription in subscriptions) {
-      subscription.cancel();
-    }
-    super.dispose();
   }
 
   @override
@@ -766,7 +623,7 @@ class DurationIndicatorState extends State<DurationIndicator> {
     }
 
     return Text(
-      duration.label(reference: duration),
+      Utility.labelDuration(widget.duration),
       style: TextStyle(
         height: 1.0,
         fontSize: titleSize * 0.6,

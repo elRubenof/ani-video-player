@@ -138,8 +138,6 @@ class _TvVideoControlsState extends State<TvVideoControls> {
 
   Timer? _timer;
 
-  double sliderValue = 0.0;
-  bool validPosition = false;
   Duration position = Duration.zero;
   Duration duration = Duration.zero;
 
@@ -175,12 +173,9 @@ class _TvVideoControlsState extends State<TvVideoControls> {
     if (!mounted) return;
 
     if (_controller.player!.value.isInitialized) {
-      position = _controller.player!.value.position;
-      duration = _controller.player!.value.duration;
-
       setState(() {
-        validPosition = duration.compareTo(position) >= 0;
-        sliderValue = validPosition ? position.inSeconds.toDouble() : 0;
+        position = _controller.player!.value.position;
+        duration = _controller.player!.value.duration;
       });
     }
   }
@@ -359,8 +354,6 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
 
   Duration position = Duration.zero;
   Duration newPosition = Duration.zero;
-
-  final List<StreamSubscription> subscriptions = [];
 
   @override
   void initState() {

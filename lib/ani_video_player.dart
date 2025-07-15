@@ -80,7 +80,7 @@ class _AniVideoState extends State<AniVideo> {
   void initVideo() {
     controller.player = VlcPlayerController.network(
       controller.videoConfiguration.url,
-      hwAcc: HwAcc.full,
+      hwAcc: HwAcc.disabled,
       options: VlcPlayerOptions(
         http: VlcHttpOptions(
           Utility.parseHttpHeaders(

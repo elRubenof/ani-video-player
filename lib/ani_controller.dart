@@ -19,12 +19,15 @@ class AniController {
   AniController(this.videoConfiguration);
 
   Future<void> dispose() async {
-    if (player!.value.isInitialized) {
-      await player!.stop();
-      await player!.stopRendererScanning();
+    if (player != null) {
+      if (player!.value.isInitialized) {
+        await player!.stop();
+        await player!.stopRendererScanning();
+      }
+
+      await player!.dispose();
     }
 
-    await player!.dispose();
     _disposed = true;
   }
 

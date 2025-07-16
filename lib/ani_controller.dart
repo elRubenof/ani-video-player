@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class AniController {
   bool _disposed = false;
@@ -19,6 +20,10 @@ class AniController {
   AniController(this.videoConfiguration);
 
   Future<void> dispose() async {
+    if (videoConfiguration.details.wakelock) {
+      WakelockPlus.disable();
+    }
+
     if (player != null) {
       if (player!.value.isInitialized) {
         await player!.stop();

@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class AniVideo extends StatefulWidget {
   final AniController controller;
@@ -75,6 +76,9 @@ class _AniVideoState extends State<AniVideo> {
     super.initState();
 
     controller = widget.controller;
+    if (controller.videoConfiguration.details.wakelock) {
+      WakelockPlus.enable();
+    }
   }
 
   void initVideo() {

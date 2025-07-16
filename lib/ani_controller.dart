@@ -20,9 +20,7 @@ class AniController {
   AniController(this.videoConfiguration);
 
   Future<void> dispose() async {
-    if (videoConfiguration.details.wakelock) {
-      WakelockPlus.disable();
-    }
+    if (videoConfiguration.details.wakelock) WakelockPlus.disable();
 
     if (player != null) {
       if (player!.value.isInitialized) {
@@ -36,8 +34,16 @@ class AniController {
     _disposed = true;
   }
 
-  Future<void> play() async => await player!.play();
-  Future<void> pause() async => await player!.pause();
+  Future<void> play() async {
+    if (videoConfiguration.details.wakelock) WakelockPlus.enable();
+    await player!.play();
+  }
+
+  Future<void> pause() async {
+    if (videoConfiguration.details.wakelock) WakelockPlus.disable();
+    await player!.pause();
+  }
+
   Future<void> playOrPause() async =>
       player!.value.isPlaying ? await pause() : await play();
 
@@ -61,6 +67,8 @@ class AniController {
   }
 
   Future<void> setVideo(String url, {VideoConfiguration? videoConfig}) async {
+    if (videoConfiguration.details.wakelock) WakelockPlus.enable();
+
     if (videoConfig != null) {
       videoConfiguration = videoConfig;
     } else {

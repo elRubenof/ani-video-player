@@ -111,8 +111,11 @@ class _AniVideoState extends State<AniVideo> {
     }
 
     player.addListener(() {
-      if (videoConfig.onComplete != null) {
-        if (player.value.isEnded) videoConfig.onComplete!(controller);
+      if (videoConfig.onComplete != null &&
+          player.value.isEnded &&
+          player.value.duration != Duration.zero &&
+          player.value.position == player.value.duration) {
+        videoConfig.onComplete!(controller);
       }
 
       if (videoConfig.onBuffering != null) {

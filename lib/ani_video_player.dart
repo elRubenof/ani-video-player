@@ -1,5 +1,7 @@
 library ani_video_player;
 
+import 'dart:io';
+
 import 'package:ani_video_player/ani_controller.dart';
 import 'package:ani_video_player/controls/mobile_video_player_controls.dart';
 import 'package:ani_video_player/controls/tv_video_player_controls.dart';
@@ -82,17 +84,39 @@ class _AniVideoState extends State<AniVideo> {
   }
 
   void initVideo() {
-    controller.player = VlcPlayerController.network(
-      controller.videoConfiguration.url,
-      hwAcc: HwAcc.disabled,
-      options: VlcPlayerOptions(
-        http: VlcHttpOptions(
-          Utility.parseHttpHeaders(
-            controller.videoConfiguration.httpHeaders ?? {},
-          ),
+    final options = VlcPlayerOptions(
+      http: VlcHttpOptions(
+        Utility.parseHttpHeaders(
+          controller.videoConfiguration.httpHeaders ?? {},
         ),
       ),
     );
+
+    switch (controller.videoConfiguration.source) {
+      case Source.network:
+        controller.player = VlcPlayerController.network(
+          controller.videoConfiguration.url,
+          hwAcc: HwAcc.disabled,
+          options: options,
+        );
+        break;
+
+      case Source.file:
+        controller.player = VlcPlayerController.file(
+          File(controller.videoConfiguration.url),
+          hwAcc: HwAcc.disabled,
+          options: options,
+        );
+        break;
+
+      case Source.asset:
+        controller.player = VlcPlayerController.asset(
+          controller.videoConfiguration.url,
+          hwAcc: HwAcc.disabled,
+          options: options,
+        );
+        break;
+    }
 
     final player = controller.player!;
     final videoConfig = controller.videoConfiguration;

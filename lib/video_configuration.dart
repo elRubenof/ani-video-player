@@ -5,6 +5,7 @@ class VideoConfiguration {
   String url;
   final VideoDetails details;
   final VideoControls controls;
+  final Source source;
   Map<String, String>? httpHeaders;
   final Function(AniController controller)? onComplete;
   final Function(bool value, AniController controller)? onBuffering;
@@ -13,6 +14,7 @@ class VideoConfiguration {
     required this.url,
     VideoDetails? details,
     VideoControls? controls,
+    this.source = Source.network,
     this.httpHeaders,
     this.onComplete,
     this.onBuffering,
@@ -66,5 +68,7 @@ class VideoControls {
     this.extra,
   });
 }
+
+enum Source { network, file, asset }
 
 enum Platform { auto, none, mobile, tv }

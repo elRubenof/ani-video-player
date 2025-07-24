@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class AniController {
@@ -14,7 +14,7 @@ class AniController {
 
   Stream<bool> get forceBufferingStream => _forceBufferingController.stream;
 
-  VlcPlayerController? player;
+  VideoPlayerController? player;
   VideoConfiguration videoConfiguration;
 
   AniController(this.videoConfiguration);
@@ -22,12 +22,8 @@ class AniController {
   Future<void> dispose() async {
     if (videoConfiguration.details.wakelock) WakelockPlus.disable();
 
-    if (player != null) {
-      if (player!.value.isInitialized) {
-        await player!.stop();
-        await player!.stopRendererScanning();
-      }
-
+    if (player != null && player!.value.isInitialized) {
+      await player!.pause();
       await player!.dispose();
     }
 
@@ -76,6 +72,8 @@ class AniController {
     }
 
     videoConfiguration.url = url;
-    player!.value = VlcPlayerValue(duration: duration);
+
+    player!.dispose();
+    player!.value = VideoPlayerValue(duration: duration);
   }
 }

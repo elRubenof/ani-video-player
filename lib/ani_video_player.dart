@@ -8,10 +8,9 @@ import 'package:ani_video_player/controls/tv_video_player_controls.dart';
 import 'package:ani_video_player/utils/utility.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class AniVideo extends StatefulWidget {
@@ -69,8 +68,6 @@ class AniVideo extends StatefulWidget {
 
 class _AniVideoState extends State<AniVideo> {
   bool _init = false;
-  UniqueKey _key = UniqueKey();
-
   late AniController controller;
 
   @override
@@ -81,61 +78,48 @@ class _AniVideoState extends State<AniVideo> {
     if (controller.videoConfiguration.details.wakelock) {
       WakelockPlus.enable();
     }
+
+    initVideo();
   }
 
   void initVideo() {
-    final options = VlcPlayerOptions(
-      http: VlcHttpOptions(
-        Utility.parseHttpHeaders(
-          controller.videoConfiguration.httpHeaders ?? {},
-        ),
-      ),
-    );
+    final videoConfig = controller.videoConfiguration;
 
     switch (controller.videoConfiguration.source) {
       case Source.network:
-        controller.player = VlcPlayerController.network(
-          controller.videoConfiguration.url,
-          hwAcc: HwAcc.disabled,
-          options: options,
+        controller.player = VideoPlayerController.networkUrl(
+          Uri.parse(controller.videoConfiguration.url),
+          httpHeaders: videoConfig.httpHeaders,
         );
         break;
 
       case Source.file:
-        controller.player = VlcPlayerController.file(
-          File(controller.videoConfiguration.url),
-          hwAcc: HwAcc.disabled,
-          options: options,
+        controller.player = VideoPlayerController.file(
+          File(videoConfig.url),
         );
         break;
 
       case Source.asset:
-        controller.player = VlcPlayerController.asset(
-          controller.videoConfiguration.url,
-          hwAcc: HwAcc.disabled,
-          options: options,
+        controller.player = VideoPlayerController.asset(
+          videoConfig.url,
         );
         break;
     }
 
     final player = controller.player!;
-    final videoConfig = controller.videoConfiguration;
+    player.initialize().then((_) {
+      setState(() {});
+      player.play();
 
-    final platform = videoConfig.controls.platform;
-    if (platform == Platform.mobile || Utility.isMobile()) {
-      player.addOnInitListener(() async {
-        await player.startRendererScanning();
-      });
-
-      player.addOnRendererEventListener((type, id, name) {
-        if (!kReleaseMode) {
-          debugPrint('OnRendererEventListener $type $id $name');
-        }
-      });
-    }
+      if (videoConfig.controls.platform == Platform.mobile ||
+          (videoConfig.controls.platform == Platform.auto &&
+              Utility.isMobile())) {
+        //TODO SCAN CHROMECAST
+      }
+    });
 
     player.addListener(() {
-      if (videoConfig.onComplete != null && player.value.isEnded) {
+      if (videoConfig.onComplete != null && player.value.isCompleted) {
         videoConfig.onComplete!(controller);
       }
 
@@ -146,7 +130,7 @@ class _AniVideoState extends State<AniVideo> {
       if (!player.value.isInitialized) {
         if (_init) {
           _init = false;
-          setState(() => _key = UniqueKey());
+          initVideo();
         }
       }
 
@@ -165,22 +149,16 @@ class _AniVideoState extends State<AniVideo> {
 
   @override
   Widget build(BuildContext context) {
-    initVideo();
-
     return Stack(
-      key: _key,
       children: [
         Center(
           child: ExcludeFocus(
-            child: VlcPlayer(
-              controller: controller.player!,
-              aspectRatio: 16 / 9,
-              placeholder: const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            child: controller.player!.value.isInitialized
+                ? AspectRatio(
+                    aspectRatio: controller.player!.value.aspectRatio,
+                    child: VideoPlayer(controller.player!),
+                  )
+                : Container(),
           ),
         ),
         getControls(),

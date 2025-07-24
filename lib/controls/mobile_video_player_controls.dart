@@ -487,29 +487,26 @@ class _MobileVideoControlsState extends State<MobileVideoControls> {
                   ),
               // Buffering Indicator.
               IgnorePointer(
-                child: Padding(
-                  padding: MediaQuery.of(context).padding,
-                  child: Center(
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 0.0,
-                        end: _controller.isBuffering() ? 1.0 : 0.0,
-                      ),
-                      duration: _theme(context).controlsTransitionDuration,
-                      builder: (context, value, child) {
-                        // Only mount the buffering indicator if the opacity is greater than 0.0.
-                        // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
-                        if (value > 0.0) {
-                          return Opacity(
-                            opacity: value,
-                            child: child!,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      child: const CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
+                child: Center(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: 0.0,
+                      end: _controller.isBuffering() ? 1.0 : 0.0,
+                    ),
+                    duration: _theme(context).controlsTransitionDuration,
+                    builder: (context, value, child) {
+                      // Only mount the buffering indicator if the opacity is greater than 0.0.
+                      // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
+                      if (value > 0.0) {
+                        return Opacity(
+                          opacity: value,
+                          child: child!,
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
                     ),
                   ),
                 ),

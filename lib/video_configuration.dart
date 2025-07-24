@@ -6,7 +6,7 @@ class VideoConfiguration {
   final VideoDetails details;
   final VideoControls controls;
   final Source source;
-  Map<String, String>? httpHeaders;
+  Map<String, String> httpHeaders;
   final Function(AniController controller)? onComplete;
   final Function(bool value, AniController controller)? onBuffering;
 
@@ -14,12 +14,13 @@ class VideoConfiguration {
     required this.url,
     VideoDetails? details,
     VideoControls? controls,
+    Map<String, String>? httpHeaders,
     this.source = Source.network,
-    this.httpHeaders,
     this.onComplete,
     this.onBuffering,
   })  : details = details ?? VideoDetails(),
-        controls = controls ?? VideoControls();
+        controls = controls ?? VideoControls(),
+        httpHeaders = httpHeaders ?? {};
 }
 
 class VideoDetails {

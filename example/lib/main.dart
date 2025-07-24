@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
   Widget videoWidget = Container();
 
   final url =
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class _HomeState extends State<Home> {
                 ..controls.onNextButtonPressed = null;
 
               controller.setVideo(
-                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
               );
             },
             extra: VideoButton(

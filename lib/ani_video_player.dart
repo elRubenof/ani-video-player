@@ -68,6 +68,8 @@ class AniVideo extends StatefulWidget {
 
 class _AniVideoState extends State<AniVideo> {
   bool _init = false;
+  UniqueKey _key = UniqueKey();
+
   late AniController controller;
 
   @override
@@ -82,7 +84,7 @@ class _AniVideoState extends State<AniVideo> {
     initVideo();
   }
 
-  void initVideo() {
+  void initVideo({VideoViewType viewType = VideoViewType.textureView}) {
     final videoConfig = controller.videoConfiguration;
 
     switch (controller.videoConfiguration.source) {
@@ -90,18 +92,21 @@ class _AniVideoState extends State<AniVideo> {
         controller.player = VideoPlayerController.networkUrl(
           Uri.parse(controller.videoConfiguration.url),
           httpHeaders: videoConfig.httpHeaders,
+          viewType: viewType,
         );
         break;
 
       case Source.file:
         controller.player = VideoPlayerController.file(
           File(videoConfig.url),
+          viewType: viewType,
         );
         break;
 
       case Source.asset:
         controller.player = VideoPlayerController.asset(
           videoConfig.url,
+          viewType: viewType,
         );
         break;
     }
@@ -127,10 +132,24 @@ class _AniVideoState extends State<AniVideo> {
         videoConfig.onBuffering!(player.value.isBuffering, controller);
       }
 
+      if (player.value.hasError) {
+        final error = player.value.errorDescription ?? "";
+        if (error.contains("MediaCodecVideoRenderer error")) {
+          debugPrint("MediaCodecVideoRenderer error: changing VideoViewType");
+
+          player.dispose();
+          initVideo(viewType: VideoViewType.platformView);
+
+          setState(() => _key = UniqueKey());
+        }
+      }
+
       if (!player.value.isInitialized) {
         if (_init) {
           _init = false;
           initVideo();
+
+          setState(() => _key = UniqueKey());
         }
       }
 
@@ -150,6 +169,7 @@ class _AniVideoState extends State<AniVideo> {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      key: _key,
       children: [
         Center(
           child: ExcludeFocus(

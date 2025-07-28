@@ -123,7 +123,7 @@ class _HomeState extends State<Home> {
                 "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
               );
             },
-            extra: VideoButton(
+            extra: (controller) => VideoButton(
               label: "EXTRA 1",
               onPressed: () {
                 Navigator.pop(context);
@@ -132,7 +132,7 @@ class _HomeState extends State<Home> {
                 print("Prevented back");
               },
             ),
-            extra2: VideoButton(
+            extra2: (controller) => VideoButton(
               iconData: Icons.replay_outlined,
               label: "EXTRA 2",
               onPressed: () {

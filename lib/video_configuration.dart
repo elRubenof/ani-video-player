@@ -57,10 +57,10 @@ class VideoControls {
   Function(AniController controller)? onNextButtonPressed;
 
   /// Aditional widget on the bottom left corner
-  final Widget? extra;
+  final Widget Function(AniController controller)? extra;
 
   /// Seconds aditional widget that depends the position for every platform controles (TV, Movile)
-  final Widget? extra2;
+  final Widget Function(AniController controller)? extra2;
 
   VideoControls({
     this.platform = Platform.auto,

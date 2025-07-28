@@ -392,7 +392,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
 
-    final extra = controls.extra ?? Container();
+    final extra =
+        controls.extra != null ? controls.extra!(_controller) : Container();
     if (extra is VideoButton) {
       final backPressed = extra.onPressBack;
       final focusChanged = extra.onFocusChange;
@@ -409,7 +410,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
         };
     }
 
-    final extra2 = controls.extra2 ?? Container();
+    final extra2 =
+        controls.extra2 != null ? controls.extra2!(_controller) : Container();
     if (extra2 is VideoButton) {
       final backPressed = extra2.onPressBack;
       final focusChanged = extra2.onFocusChange;

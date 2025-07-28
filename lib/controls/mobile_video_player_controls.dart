@@ -850,11 +850,12 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  controls.extra ?? Container(),
+                  if (controls.extra != null) controls.extra!(_controller),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      controls.extra2 ?? Container(),
+                      if (controls.extra2 != null)
+                        controls.extra2!(_controller),
                       if (controls.extra2 != null && controls.showNextButton)
                         const SizedBox(width: 15),
                       if (controls.showNextButton)

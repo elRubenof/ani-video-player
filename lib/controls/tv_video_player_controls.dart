@@ -395,10 +395,35 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final extra = controls.extra ?? Container();
     if (extra is VideoButton) {
       final backPressed = extra.onPressBack;
-      extra.onPressBack = () {
-        widget.hide();
-        if (backPressed != null) backPressed();
-      };
+      final focusChanged = extra.onFocusChange;
+      extra
+        ..onPressBack = () {
+          widget.hide();
+          if (backPressed != null) backPressed();
+        }
+        ..onFocusChange = (value) {
+          if (!mounted) return;
+
+          if (value && !_sliderFocusNode.hasFocus) widget.show();
+          if (focusChanged != null) focusChanged(value);
+        };
+    }
+
+    final extra2 = controls.extra2 ?? Container();
+    if (extra2 is VideoButton) {
+      final backPressed = extra2.onPressBack;
+      final focusChanged = extra2.onFocusChange;
+      extra2
+        ..onPressBack = () {
+          widget.hide();
+          if (backPressed != null) backPressed();
+        }
+        ..onFocusChange = (value) {
+          if (!mounted) return;
+
+          if (value && !_sliderFocusNode.hasFocus) widget.show();
+          if (focusChanged != null) focusChanged(value);
+        };
     }
 
     if (newPosition == Duration.zero) position = widget.position;
@@ -546,20 +571,27 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   extra,
-                  if (controls.showNextButton)
-                    VideoButton(
-                      enable: controls.onNextButtonPressed != null,
-                      label: controls.nextButtonLabel,
-                      iconData: Icons.skip_next_rounded,
-                      onFocusChange: (value) {
-                        if (!value && _sliderFocusNode.hasFocus) return;
+                  Row(
+                    children: [
+                      extra2,
+                      if (controls.extra2 != null && controls.showNextButton)
+                        const SizedBox(width: 5),
+                      if (controls.showNextButton)
+                        VideoButton(
+                          enable: controls.onNextButtonPressed != null,
+                          label: controls.nextButtonLabel,
+                          iconData: Icons.skip_next_rounded,
+                          onFocusChange: (value) {
+                            if (!value && _sliderFocusNode.hasFocus) return;
 
-                        widget.show();
-                      },
-                      onPressed: () =>
-                          controls.onNextButtonPressed!(_controller),
-                      onPressBack: widget.hide,
-                    ),
+                            widget.show();
+                          },
+                          onPressed: () =>
+                              controls.onNextButtonPressed!(_controller),
+                          onPressBack: widget.hide,
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),

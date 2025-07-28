@@ -854,6 +854,9 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      controls.extra2 ?? Container(),
+                      if (controls.extra2 != null && controls.showNextButton)
+                        const SizedBox(width: 15),
                       if (controls.showNextButton)
                         VideoButton(
                           enable: controls.onNextButtonPressed != null,

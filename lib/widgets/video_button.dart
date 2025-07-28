@@ -8,7 +8,7 @@ class VideoButton extends StatefulWidget {
   final IconData? iconData;
   final String? label;
   final Function() onPressed;
-  final Function(bool value)? onFocusChange;
+  Function(bool value)? onFocusChange;
   Function()? onPressBack;
   final Color color;
   final bool enable;
@@ -76,45 +76,41 @@ class _VideoButtonState extends State<VideoButton> {
 
                   return KeyEventResult.ignored;
                 },
-                child: Stack(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 90),
-                      padding: EdgeInsets.only(
-                        top: widget.iconData == null ? 7 : 4,
-                        bottom: widget.iconData == null ? 7 : 4,
-                        left: widget.iconData == null ? 7 : 4,
-                        right: widget.label != null && _focus ? 7 : 4,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          width: 1,
-                          color: _focus ? Colors.white : Colors.transparent,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          if (widget.iconData != null)
-                            Icon(
-                              widget.iconData,
-                              size: iconSize,
-                              color: widget.color,
-                            ),
-                          if (widget.iconData != null && widget.label != null)
-                            const SizedBox(width: 6),
-                          if (widget.iconData == null || _focus)
-                            Text(
-                              widget.label ?? "",
-                              style: TextStyle(
-                                fontSize: titleSize,
-                                color: widget.color,
-                              ),
-                            ),
-                        ],
-                      ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 90),
+                  padding: EdgeInsets.only(
+                    top: widget.iconData == null ? 7 : 4,
+                    bottom: widget.iconData == null ? 7 : 4,
+                    left: widget.iconData == null ? 7 : 4,
+                    right: widget.label != null && _focus ? 7 : 4,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      width: 1,
+                      color: _focus ? Colors.white : Colors.transparent,
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    children: [
+                      if (widget.iconData != null)
+                        Icon(
+                          widget.iconData,
+                          size: iconSize,
+                          color: widget.color,
+                        ),
+                      if (widget.iconData != null && widget.label != null)
+                        const SizedBox(width: 6),
+                      if (widget.iconData == null || _focus)
+                        Text(
+                          widget.label ?? "",
+                          style: TextStyle(
+                            fontSize: titleSize,
+                            color: widget.color,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             )

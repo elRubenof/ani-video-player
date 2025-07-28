@@ -124,7 +124,17 @@ class _HomeState extends State<Home> {
               );
             },
             extra: VideoButton(
-              label: "EXTRA BUTTON",
+              label: "EXTRA 1",
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              onPressBack: () {
+                print("Prevented back");
+              },
+            ),
+            extra2: VideoButton(
+              iconData: Icons.replay_outlined,
+              label: "EXTRA 2",
               onPressed: () {
                 Navigator.pop(context);
               },

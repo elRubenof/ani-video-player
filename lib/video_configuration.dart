@@ -59,6 +59,9 @@ class VideoControls {
   /// Aditional widget on the bottom left corner
   final Widget? extra;
 
+  /// Seconds aditional widget that depends the position for every platform controles (TV, Movile)
+  final Widget? extra2;
+
   VideoControls({
     this.platform = Platform.auto,
     this.showBackButton = true,
@@ -67,6 +70,7 @@ class VideoControls {
     this.nextButtonLabel,
     this.onNextButtonPressed,
     this.extra,
+    this.extra2,
   });
 }
 

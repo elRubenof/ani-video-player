@@ -79,10 +79,10 @@ class _VideoButtonState extends State<VideoButton> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 90),
                   padding: EdgeInsets.only(
-                    top: widget.iconData == null ? 7 : 4,
-                    bottom: widget.iconData == null ? 7 : 4,
-                    left: widget.iconData == null ? 7 : 4,
-                    right: widget.label != null && _focus ? 7 : 4,
+                    top: 7,
+                    bottom: 7,
+                    left: 7,
+                    right: widget.label != null && _focus ? 9 : 7,
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),

@@ -3,16 +3,17 @@ import 'package:ani_video_player/utils/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+// ignore: must_be_immutable
 class VideoButton extends StatefulWidget {
   final IconData? iconData;
   final String? label;
   final Function() onPressed;
   final Function(bool value)? onFocusChange;
-  final Function()? onPressBack;
+  Function()? onPressBack;
   final Color color;
   final bool enable;
 
-  const VideoButton({
+  VideoButton({
     super.key,
     this.iconData,
     this.label,

@@ -392,6 +392,15 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
 
+    final extra = controls.extra ?? Container();
+    if (extra is VideoButton) {
+      final backPressed = extra.onPressBack;
+      extra.onPressBack = () {
+        widget.hide();
+        if (backPressed != null) backPressed();
+      };
+    }
+
     if (newPosition == Duration.zero) position = widget.position;
 
     double trackHeight = height * 0.005;
@@ -536,7 +545,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  controls.extra ?? Container(),
+                  extra,
                   if (controls.showNextButton)
                     VideoButton(
                       enable: controls.onNextButtonPressed != null,

@@ -744,7 +744,8 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
     final height = MediaQuery.of(context).size.height;
     final controls = _controller.videoConfiguration.controls;
 
-    if (!tapped) position = widget.position;
+    final delta = widget.delta ?? ValueNotifier(Duration.zero);
+    if (!tapped && delta.value == Duration.zero) position = widget.position;
 
     double trackHeight = height * 0.005;
     if (trackHeight > 3) {

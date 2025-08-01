@@ -643,7 +643,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
   bool playing = false;
 
   double slider = 0.0;
-  Duration position = Duration.zero;
+  Duration position = _controller.position;
 
   @override
   void initState() {
@@ -1131,10 +1131,9 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
       widget.onSubmitted.call(value);
       _controller.play();
     });
+
+    setState(() => value += const Duration(seconds: 10));
     widget.onChanged.call(value);
-    setState(() {
-      value += const Duration(seconds: 10);
-    });
   }
 
   @override
@@ -1221,10 +1220,9 @@ class _ForwardSeekIndicatorState extends State<_ForwardSeekIndicator> {
       widget.onSubmitted.call(value);
       _controller.play();
     });
+
+    setState(() => value += const Duration(seconds: 10));
     widget.onChanged.call(value);
-    setState(() {
-      value += const Duration(seconds: 10);
-    });
   }
 
   @override

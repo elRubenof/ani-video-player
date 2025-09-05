@@ -84,8 +84,12 @@ class _AniVideoState extends State<AniVideo> {
     initVideo();
   }
 
-  void initVideo({VideoViewType viewType = VideoViewType.textureView}) {
+  void initVideo({VideoViewType? viewType}) {
     final videoConfig = controller.videoConfiguration;
+
+    viewType ??= Utility.isMobile()
+        ? VideoViewType.textureView
+        : VideoViewType.platformView;
 
     switch (controller.videoConfiguration.source) {
       case Source.network:

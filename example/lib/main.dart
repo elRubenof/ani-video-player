@@ -3,6 +3,7 @@ import 'package:ani_video_player/ani_video_player.dart';
 import 'package:ani_video_player/utils/keys.dart';
 import 'package:ani_video_player/video_configuration.dart';
 import 'package:ani_video_player/widgets/video_button.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,7 +36,7 @@ class _HomeState extends State<Home> {
   Widget videoWidget = Container();
 
   final url =
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+      "https://stream.animextre.me/stream/oshi_no_ko/oshi_no_ko-_-1.mp4";
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,7 @@ class _HomeState extends State<Home> {
                 ..controls.onNextButtonPressed = null;
 
               controller.setVideo(
-                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                "https://stream.animextre.me/stream/sword_art_online/sword_art_online-_-1.mp4",
               );
             },
             extra: (controller) => VideoButton(
@@ -129,7 +130,7 @@ class _HomeState extends State<Home> {
                 Navigator.pop(context);
               },
               onPressBack: () {
-                print("Prevented back");
+                if (kDebugMode) print("Prevented back");
               },
             ),
             extra2: (controller) => VideoButton(
@@ -139,7 +140,7 @@ class _HomeState extends State<Home> {
                 Navigator.pop(context);
               },
               onPressBack: () {
-                print("Prevented back");
+                if (kDebugMode) print("Prevented back");
               },
             ),
           ),
@@ -150,7 +151,7 @@ class _HomeState extends State<Home> {
             await Future.delayed(const Duration(seconds: 10));
             if (controller.isBuffering()) {
               //VIDEO WAS 10 SECONDS BUFFERING SO WE ASSUME IT CRASHED
-              print("BUFFERING EXAMPLE");
+              if (kDebugMode) print("BUFFERING EXAMPLE");
             }
           },
         ),

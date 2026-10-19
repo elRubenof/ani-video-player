@@ -351,6 +351,7 @@ class MaterialSeekBar extends StatefulWidget {
 
 class MaterialSeekBarState extends State<MaterialSeekBar> {
   bool tapped = false;
+  bool upPressed = false;
 
   Duration position = Duration.zero;
   Duration newPosition = Duration.zero;
@@ -458,6 +459,18 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
                     widget.hide();
                   } else {
                     Navigator.pop(context);
+                  }
+
+                  return KeyEventResult.handled;
+                }
+
+                if (key == Keys.keyUp) {
+                  if (event is KeyUpEvent && upPressed) {
+                    upPressed = false;
+
+                    widget.visible ? widget.hide() : widget.show();
+                  } else {
+                    upPressed = true;
                   }
 
                   return KeyEventResult.handled;

@@ -48,5 +48,3 @@ app.*.map.json
 
 # iOS
 ios/Podfile.lock
-ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
-ios/Flutter/AppFrameworkInfo.plist

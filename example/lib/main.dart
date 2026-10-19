@@ -105,9 +105,9 @@ class _HomeState extends State<Home> {
         VideoConfiguration(
           url: url,
           details: VideoDetails(
-            title: "Example video",
-            extraTitle: " - 1",
-          ),
+              title: "Example video",
+              extraTitle: " - 1",
+              extraText: "(Example App)"),
           controls: VideoControls(
             showFullScreenButton: false,
             nextButtonLabel: "SKIP",
@@ -117,6 +117,7 @@ class _HomeState extends State<Home> {
               controller.videoConfiguration
                 ..details.title = "Example video"
                 ..details.extraTitle = " - 2"
+                ..details.extraText = "(Example App)"
                 ..details.start = const Duration(seconds: 30)
                 ..controls.onNextButtonPressed = null;
 

@@ -79,6 +79,7 @@ class _TitleState extends State<Title> {
     );
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (videoDetails.title != null)
           Container(
@@ -92,7 +93,18 @@ class _TitleState extends State<Title> {
           Text(
             videoDetails.extraTitle!,
             style: style,
-          )
+          ),
+        if (videoDetails.extraText != null)
+          Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              videoDetails.extraText!,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: titleSize * 0.7,
+              ),
+            ),
+          ),
       ],
     );
   }
